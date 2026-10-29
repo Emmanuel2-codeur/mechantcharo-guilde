@@ -18,8 +18,10 @@ export default function PageTransition({ children }) {
       initial="initial"
       animate="animate"
       exit="exit"
+      style={{ position: 'relative' }}
       transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
     >
+      <div className="site-backdrop" aria-hidden="true" />
       {children}
     </motion.div>
   )

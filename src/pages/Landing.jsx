@@ -10,7 +10,7 @@ import StatsBar from '../components/StatsBar'
 import logo from '../assets/logo.jpg'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext'
-import { HOME_ACTIONS } from '../config'
+import { HOME_ACTIONS, tPath } from '../config'
 
 const formatCards = [
   {
@@ -125,7 +125,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-5 lg:px-8 pt-16 pb-20 lg:pt-24 lg:pb-28 grid lg:grid-cols-2 gap-14 items-center">
           <div>
             <span className="eyebrow mb-6">17 Août — 10 Octobre 2026</span>
-            <h1 className="font-display text-5xl md:text-6xl xl:text-[4.2rem] leading-[0.98] tracking-wide text-ink-800">
+            <h1 className="font-display text-5xl md:text-6xl xl:text-[4.2rem] leading-[0.98] tracking-wide text-ink-950">
               ON SE BAT.<br />
               ON <span className="text-charo-orange">DOMINE</span>.<br />
               UN SEUL <span className="text-charo-orange">CHARO</span> RESTE.
@@ -137,14 +137,14 @@ export default function Landing() {
             <div className="home-actions-grid mb-10">
               {visibleActions.map((action) => {
                 const Icon = action.to === '/connexion' ? Users
-                  : action.to === '/classement' ? Trophy
-                  : action.to === '/matchs' ? Swords
-                  : action.to === '/finalistes' ? Medal
+                  : action.to.endsWith('/classement') ? Trophy
+                  : action.to.endsWith('/matchs') ? Swords
+                  : action.to.endsWith('/finalistes') ? Medal
                   : Megaphone
                 const variant = action.variant === 'primary' ? 'home-action-primary' : action.variant === 'dark' ? 'home-action-dark' : ''
                 return (
                   <Link key={action.to} to={action.to} className={`home-action ${variant}`}>
-                    <Icon size={18} strokeWidth={action.to === '/connexion' || action.to === '/matchs' ? 2.5 : 2} />
+                    <Icon size={18} strokeWidth={action.to === '/connexion' || action.to.endsWith('/matchs') ? 2.5 : 2} />
                     <span>{action.to === '/connexion' ? 'Se connecter' : action.label}</span>
                   </Link>
                 )
@@ -239,7 +239,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-2 gap-14 items-center">
           <div>
             <span className="eyebrow mb-5">Notre impact</span>
-            <h2 className="font-display text-4xl md:text-5xl leading-tight mb-6 text-ink-800">
+            <h2 className="font-display text-4xl md:text-5xl leading-tight mb-6 text-ink-950">
               Une compétition<br /><span className="text-charo-orange">sans précédent.</span>
             </h2>
             <div className="grid grid-cols-2 gap-6 mb-9">
@@ -255,7 +255,7 @@ export default function Landing() {
                 </div>
               ))}
             </div>
-            <Link to="/groupes" className="btn-primary">
+            <Link to={tPath('/groupes')} className="btn-primary">
               Voir les classements <ArrowRight size={18} />
             </Link>
           </div>
@@ -299,7 +299,7 @@ export default function Landing() {
           <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
             <div>
               <span className="eyebrow mb-4"><Megaphone size={13} /> Vie de la guilde</span>
-              <h2 className="font-display text-4xl md:text-5xl text-ink-900">Annonces de la guilde</h2>
+              <h2 className="font-display text-4xl md:text-5xl text-ink-950">Annonces de la guilde</h2>
               <p className="text-ink-600 mt-3 max-w-xl">Les dernières informations publiées par l'administration de MÉCHANTCHARO.</p>
             </div>
             <Link to="/annonces" className="btn-primary">
@@ -341,7 +341,7 @@ export default function Landing() {
       <section className="py-20 lg:py-28 border-t border-ink-700">
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
           <span className="eyebrow mb-4">Comment participer</span>
-          <h2 className="font-display text-4xl md:text-5xl mb-14 max-w-xl text-ink-900">Du Début à la grande finale.</h2>
+          <h2 className="font-display text-4xl md:text-5xl mb-14 max-w-xl text-ink-950">Du Début à la grande finale.</h2>
 
           <div className="grid md:grid-cols-5 gap-5">
             {processSteps.map((s, i) => (
@@ -362,7 +362,7 @@ export default function Landing() {
       <section className="py-20 lg:py-28 border-t border-ink-700">
         <div className="max-w-7xl mx-auto px-5 lg:px-8">
           <span className="eyebrow mb-4 text-charo-orange">Récompenses</span>
-          <h2 className="font-display text-4xl md:text-5xl mb-14 max-w-xl text-ink-900">Lots &amp; dotations.</h2>
+          <h2 className="font-display text-4xl md:text-5xl mb-14 max-w-xl text-ink-950">Lots &amp; dotations.</h2>
 
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
             {prizeTiers.map((t) => (
@@ -401,7 +401,7 @@ export default function Landing() {
                   ))}
                 </ul>
 
-                <Link to="/reglement" className={t.featured ? 'btn-primary w-full' : 'btn-outline w-full'}>
+                <Link to={tPath('/reglement')} className={t.featured ? 'btn-primary w-full' : 'btn-outline w-full'}>
                   Voir le règlement
                 </Link>
               </div>
@@ -414,7 +414,7 @@ export default function Landing() {
                 <Trophy size={20} />
               </div>
               <div>
-                <p className="font-bold text-ink-900">MVP du tournoi</p>
+                <p className="font-bold text-ink-950">MVP du tournoi</p>
                 <p className="text-sm text-ink-600 mt-1">400 diamants, attribués par les juges selon les performances, la régularité, le niveau de jeu, le fair-play et l’impact sur la compétition.</p>
               </div>
             </div>
@@ -438,8 +438,8 @@ export default function Landing() {
               </p>
             </div>
             <Link
-              to={session ? '/classement' : '/connexion'}
-              className="relative inline-flex items-center gap-2 rounded-xl bg-ink-950 text-white font-bold px-7 py-4 hover:bg-ink-900 transition-colors shrink-0"
+              to={session ? tPath('/classement') : '/connexion'}
+              className="relative inline-flex items-center gap-2 rounded-xl bg-ink-950 text-white font-bold px-7 py-4 hover:bg-charo-orange transition-colors shrink-0"
             >
               <Swords size={18} /> {session ? 'Voir le classement' : 'Se connecter'}
             </Link>

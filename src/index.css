@@ -51,20 +51,21 @@ body {
 
 @layer components {
   .eyebrow {
-    @apply inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-charo-orange;
+    @apply inline-flex items-center gap-2 rounded-full border border-ink-950/10 bg-white/85 px-3.5 py-1.5 text-[11px] font-bold tracking-[0.16em] uppercase text-ink-950;
   }
   .eyebrow::before {
     content: '';
     @apply w-2 h-2 rounded-full bg-charo-orange inline-block;
+    animation: site-pulse 2s infinite;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-charo-gradient text-white font-bold px-6 py-3.5 shadow-glow hover:brightness-110 active:scale-[0.98] transition-all;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-charo-gradient text-white font-bold px-6 py-3.5 shadow-glow hover:brightness-110 active:scale-[0.98] transition-all;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-600 text-ink-600 font-semibold px-6 py-3.5 hover:border-charo-orange hover:text-charo-orange transition-all;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-[1.5px] border-ink-950 text-ink-950 font-bold px-6 py-3.5 hover:bg-ink-950 hover:text-white transition-all;
   }
   .card {
-    @apply bg-white text-ink-950 border border-ink-700 rounded-2xl shadow-card;
+    @apply bg-white text-ink-950 border border-ink-700 rounded-3xl shadow-card;
   }
   .badge-open {
     @apply inline-flex items-center gap-1.5 rounded-full bg-charo-orange/10 border border-charo-orange/30 text-charo-orange text-xs font-bold tracking-wider uppercase px-3 py-1;
@@ -97,7 +98,7 @@ table td { color: #1f2937; }
 /* ================= UI SOCIALE / MOBILE ================= */
 
 .home-action {
-  @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-ink-700 bg-white text-ink-950 font-bold px-5 py-3.5 shadow-card transition-all duration-200;
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-700 bg-white text-ink-950 font-bold px-6 py-3.5 shadow-card transition-all duration-200;
   min-height: 52px;
 }
 .home-action:hover {
@@ -472,3 +473,27 @@ table td { color: #1f2937; }
 .back-button-nav span { display:none; }
 .back-button-nav:hover { color:#FF5A1F; border-color:rgba(255,90,31,.35); background:rgba(255,90,31,.06); }
 @media (max-width:640px){ .back-button-nav { width:30px; height:30px; } }
+/* Champ de formulaire réutilisable (admin guilde) */
+.input { width:100%; border:1px solid #D1D5DB; border-radius:12px; padding:.6rem .8rem; background:#fff; font-size:.875rem; outline:none; }
+.input:focus { border-color: var(--charo-orange, #F97316); }
+
+
+/* ═══════════════ Design universel MÉCHANTCHARO (noir + orange Charo) ═══════════════ */
+h1.font-display, h2.font-display { font-weight: 800; letter-spacing: -0.03em; line-height: 1.04; }
+h1.font-display { letter-spacing: -0.04em; }
+a.card, a.card:hover { text-decoration: none; }
+a.card { transition: transform .3s, box-shadow .3s, border-color .3s; }
+a.card:hover { transform: translateY(-4px); border-color: rgba(255,90,31,.55); box-shadow: 0 22px 44px -24px rgba(15,23,42,.28); }
+
+/* Fond commun de toutes les pages : grille fine + halo orange en haut */
+.site-backdrop { position: absolute; z-index: -1; inset: 0 0 auto 0; height: 560px; pointer-events: none; overflow: hidden; }
+.site-backdrop::before { content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(11,15,26,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(11,15,26,.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 85% at 78% 0%, #000 10%, transparent 72%);
+          mask-image: radial-gradient(ellipse 75% 85% at 78% 0%, #000 10%, transparent 72%); }
+.site-backdrop::after { content: ''; position: absolute; right: 6%; top: -180px; width: 520px; height: 520px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,90,31,.16), transparent 65%); filter: blur(30px); }
+@keyframes site-pulse { 70% { box-shadow: 0 0 0 9px rgba(255,90,31,0); } 100% { box-shadow: 0 0 0 0 rgba(255,90,31,0); } }
+.eyebrow::before { box-shadow: 0 0 0 0 rgba(255,90,31,.55); }
+@media (prefers-reduced-motion: reduce) { .eyebrow::before { animation: none; } }

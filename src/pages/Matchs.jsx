@@ -1,3 +1,4 @@
+import { tPath } from '../config'
 import { useEffect, useMemo, useState } from 'react'
 import {
   CalendarDays,
@@ -266,7 +267,7 @@ export default function Matchs() {
 
               {/* HISTORIQUE */}
               <Link
-                to="/historique"
+                to={tPath('/historique')}
                 className="btn-outline inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl shrink-0"
               >
                 <History size={17} />

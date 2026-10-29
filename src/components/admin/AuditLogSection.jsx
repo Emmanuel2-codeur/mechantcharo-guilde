@@ -3,7 +3,7 @@ import { History, Search } from 'lucide-react'
 
 const ACTION_LABEL = { insert: 'Création', update: 'Modification', delete: 'Suppression' }
 const ACTION_COLOR = { insert: 'bg-green-50 text-green-700 border-green-200', update: 'bg-amber-50 text-amber-700 border-amber-200', delete: 'bg-red-50 text-red-700 border-red-200' }
-const ENTITY_LABEL = { profiles: 'Joueur', matches: 'Match', groups: 'Poule', announcements: 'Annonce' }
+const ENTITY_LABEL = { profiles: 'Joueur', matches: 'Match', groups: 'Poule', announcements: 'Annonce', guild_members: 'Membre guilde', guild_applications: 'Candidature', guild_duos: 'Duo', guild_events: 'Événement', event_attendance: 'Présence', honor_rules: 'Barème', member_rankings: 'Classement', badges: 'Badge', member_badges: 'Badge décerné' }
 
 export default function AuditLogSection({ entries }) {
   const [query, setQuery] = useState('')
@@ -20,7 +20,7 @@ export default function AuditLogSection({ entries }) {
 
   return (
     <div className="mb-14">
-      <div className="flex items-center gap-2.5 mb-1"><History size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-700">Journal d'audit</h2></div>
+      <div className="flex items-center gap-2.5 mb-1"><History size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-950">Journal d'audit</h2></div>
       <p className="text-sm text-ink-600 mb-5">
         Chaque modification faite par un admin est enregistrée automatiquement : qui, quoi, quand — pour une traçabilité totale.
       </p>

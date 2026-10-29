@@ -1,0 +1,253 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowUpRight, ArrowRight } from 'lucide-react'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
+import logo from '../assets/logo.jpg'
+import { supabase } from '../lib/supabaseClient'
+import { TOURNAMENTS } from '../config'
+import { useTournamentStatus } from '../lib/useTournamentStatus'
+import { useGuildHonor } from '../lib/useGuildHonor'
+import { levelProgress, kindLabel, fmtDateTime } from '../lib/guild'
+import { gsap, prefersReducedMotion } from '../lib/gsap'
+import { useReveal, useCountUp } from '../lib/useGsapEffects'
+import './guildHome.css'
+
+const MARQUEE = ['Soyez méchant', 'Guerres de guilde', 'Tournois', 'Guilde vs guilde', 'Classement']
+
+export default function GuildHome() {
+  const pageRef = useRef(null)
+  const heroRef = useRef(null)
+  const marqueeRef = useRef(null)
+  const status = useTournamentStatus()
+  const honor = useGuildHonor()
+  const featured = TOURNAMENTS[0]
+  const [announcements, setAnnouncements] = useState([])
+  const [memberCount, setMemberCount] = useState(null)
+  const [nextEvent, setNextEvent] = useState(null)
+
+  useEffect(() => {
+    supabase.from('announcements').select('id, title, body, created_at').eq('published', true)
+      .order('created_at', { ascending: false }).limit(3).then(({ data }) => setAnnouncements(data || []))
+    supabase.from('guild_members').select('id', { count: 'exact', head: true }).eq('is_active', true)
+      .then(({ count }) => setMemberCount(count || 0))
+    supabase.from('guild_events').select('kind, title, starts_at').gte('starts_at', new Date().toISOString())
+      .order('starts_at').limit(1).then(({ data }) => setNextEvent(data?.[0] || null))
+  }, [])
+
+  // ── Animations du hero : entrée du logo et du texte, flottement, parallaxe souris/scroll, boutons magnétiques
+  useLayoutEffect(() => {
+    const root = heroRef.current
+    if (!root || prefersReducedMotion()) return
+    const mm = gsap.matchMedia()
+
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const q = (s) => root.querySelector(s)
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
+      tl.from(q('.gh-logo img'), { opacity: 0, scale: 1.12, x: 90, duration: 1.8, ease: 'expo.out' }, 0)
+        .from(q('.gh-glow'), { opacity: 0, scale: 0.6, duration: 1.8 }, 0.1)
+        .from(q('.gh-chip'), { opacity: 0, y: 16, duration: 0.7 }, 0.2)
+        .from(root.querySelectorAll('.gh-line > span'), { yPercent: 115, duration: 1.1, stagger: 0.12 }, 0.3)
+        .from(root.querySelectorAll('.gh-fade'), { opacity: 0, y: 24, duration: 0.8, stagger: 0.1 }, 0.9)
+
+      gsap.to(q('.gh-logo-float'), { y: -14, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
+      gsap.to(q('.gh-logo-scroll'), {
+        yPercent: 10, ease: 'none',
+        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: true },
+      })
+      gsap.to(q('.gh-inner'), {
+        y: -50, opacity: 0.2, ease: 'none',
+        scrollTrigger: { trigger: root, start: '40% top', end: 'bottom top', scrub: true },
+      })
+
+      const cleanups = []
+      if (window.matchMedia('(hover: hover)').matches) {
+        const px = gsap.quickTo(q('.gh-logo-par'), 'x', { duration: 1.2, ease: 'power3' })
+        const py = gsap.quickTo(q('.gh-logo-par'), 'y', { duration: 1.2, ease: 'power3' })
+        const onMove = (e) => {
+          const r = root.getBoundingClientRect()
+          px(((e.clientX - r.left) / r.width - 0.5) * -40)
+          py(((e.clientY - r.top) / r.height - 0.5) * -30)
+        }
+        root.addEventListener('mousemove', onMove)
+        cleanups.push(() => root.removeEventListener('mousemove', onMove))
+
+        root.querySelectorAll('[data-magnetic]').forEach((el) => {
+          const mx = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'power3' })
+          const my = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3' })
+          const move = (e) => {
+            const r = el.getBoundingClientRect()
+            mx((e.clientX - (r.left + r.width / 2)) * 0.28)
+            my((e.clientY - (r.top + r.height / 2)) * 0.28)
+          }
+          const leave = () => { mx(0); my(0) }
+          el.addEventListener('mousemove', move)
+          el.addEventListener('mouseleave', leave)
+          cleanups.push(() => { el.removeEventListener('mousemove', move); el.removeEventListener('mouseleave', leave) })
+        })
+      }
+      return () => cleanups.forEach((fn) => fn())
+    }, root)
+
+    return () => mm.revert()
+  }, [])
+
+  // ── Bande défilante infinie
+  useLayoutEffect(() => {
+    const el = marqueeRef.current
+    if (!el || prefersReducedMotion()) return
+    const tween = gsap.to(el, { xPercent: -50, duration: 30, ease: 'none', repeat: -1 })
+    return () => tween.kill()
+  }, [])
+
+  useReveal(pageRef, [announcements.length, !!honor, memberCount, !!nextEvent])
+  useCountUp(pageRef, [memberCount, !!honor])
+
+  const lvl = honor ? levelProgress(honor.score) : null
+  const group = MARQUEE.flatMap((w) => [<span key={w}>{w}</span>, <em key={`${w}-s`}>✦</em>])
+
+  return (
+    <div className="gh" ref={pageRef}>
+      <Navbar />
+
+      {/* ───── Hero ───── */}
+      <section className="gh-hero" ref={heroRef}>
+        <div className="gh-grid" />
+        <div className="gh-glow" />
+        <div className="gh-logo" aria-hidden="true">
+          <div className="gh-logo-scroll"><div className="gh-logo-par"><div className="gh-logo-float">
+            <img src={logo} alt="" />
+          </div></div></div>
+        </div>
+
+        <div className="gh-content">
+          <div className="gh-inner">
+            <span className="gh-chip"><i className="gh-dot" /> Guilde officielle · Free Fire</span>
+            <h1 className="gh-title">
+              <span className="gh-line gh-hello"><span>Bienvenue chez les</span></span>
+              <span className="gh-line gh-big"><span>MÉCHANTS</span></span>
+              <span className="gh-line gh-big gh-outline"><span>CHARO</span></span>
+            </h1>
+            <p className="gh-lead gh-fade">
+              Une guilde qui joue pour gagner. Tournois, guerres de guilde, classement des membres et des duos : tout se passe ici.
+            </p>
+            <div className="gh-actions gh-fade">
+              <Link to="/rejoindre" className="gh-btn gh-btn-dark" data-magnetic>Rejoindre la guilde <ArrowUpRight size={18} /></Link>
+              <Link to="/tournois" className="gh-btn gh-btn-ghost" data-magnetic>Voir les tournois</Link>
+            </div>
+
+            {(memberCount > 0 || honor) && (
+              <div className="gh-stats gh-fade">
+                {memberCount > 0 && <div className="gh-stat"><strong data-count={memberCount}>0</strong><span>membres actifs</span></div>}
+                {honor && <div className="gh-stat"><strong data-count={honor.wins}>0</strong><span>victoires</span></div>}
+                {honor && <div className="gh-stat"><strong>{honor.level}</strong><span>niveau d’honneur</span></div>}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="gh-scroll gh-fade"><i /> Défiler</div>
+      </section>
+
+      {/* ───── Bande défilante ───── */}
+      <div className="gh-marquee" aria-hidden="true">
+        <div className="gh-track" ref={marqueeRef}><div>{group}{group}</div><div>{group}{group}</div></div>
+      </div>
+
+      {/* ───── La guilde en ce moment ───── */}
+      <section className="gh-section">
+        <div className="gh-wrap">
+          <p className="gh-eyebrow" data-reveal>En ce moment</p>
+          <h2 className="gh-h2" data-reveal>La guilde en action.</h2>
+          <div className="gh-bento">
+            <Link to={featured.to} className="gh-card gh-card-tall gh-card-dark" data-reveal>
+              <div>
+                <span className="gh-status"><i className="gh-dot" /> {status.label}</span>
+                <h3 style={{ marginTop: '1.5rem' }}>{featured.title}</h3>
+                <p style={{ maxWidth: '30rem' }}>{featured.text}</p>
+                <p style={{ marginTop: '.75rem', fontSize: '.9rem' }}>{featured.game} · {featured.format}</p>
+              </div>
+              <span className="gh-more">Entrer dans le tournoi <ArrowRight size={16} /></span>
+            </Link>
+
+            <Link to="/evenements" className="gh-card" data-reveal="1">
+              <div>
+                <span className="gh-label">Prochain rendez-vous</span>
+                {nextEvent ? (
+                  <>
+                    <h3 style={{ fontSize: '1.5rem' }}>{nextEvent.title}</h3>
+                    <p>{kindLabel(nextEvent.kind)} · {fmtDateTime(nextEvent.starts_at)}</p>
+                  </>
+                ) : <p style={{ marginTop: '.75rem' }}>Aucun événement programmé pour le moment.</p>}
+              </div>
+              <span className="gh-more">Voir le calendrier <ArrowUpRight size={16} /></span>
+            </Link>
+
+            <Link to="/membres" className="gh-card" data-reveal="2">
+              <div>
+                <span className="gh-label">La famille</span>
+                {memberCount > 0
+                  ? <p className="gh-bignum" style={{ color: 'var(--ink)', marginTop: '.5rem' }}><span data-count={memberCount}>0</span></p>
+                  : <h3 style={{ fontSize: '1.5rem' }}>Les membres</h3>}
+                <p>{memberCount > 0 ? 'membres actifs dans la guilde' : 'Découvre ceux qui portent les couleurs.'}</p>
+              </div>
+              <span className="gh-more">Voir les membres <ArrowUpRight size={16} /></span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ───── Honneur ───── */}
+      {honor && lvl && (
+        <section className="gh-honor">
+          <div className="gh-wrap gh-honor-grid">
+            <div data-reveal>
+              <p className="gh-eyebrow">Honneur de la guilde</p>
+              <p className="gh-level">{honor.level}</p>
+              <div className="gh-bar"><div data-bar={lvl.pct} /></div>
+              <p style={{ color: 'rgba(255,255,255,.65)', fontSize: '.9rem' }}>
+                {lvl.next ? `${lvl.next.min - honor.score} points avant le niveau ${lvl.next.name}` : 'Niveau maximum atteint'}
+              </p>
+            </div>
+            <div data-reveal="2">
+              <p className="gh-score"><span data-count={honor.score}>0</span></p>
+              <p style={{ color: 'rgba(255,255,255,.65)', margin: '.5rem 0 2rem' }}>points d’honneur · {honor.participation_pct} % de participation</p>
+              <Link to="/classement-guilde" className="gh-btn gh-btn-light">Voir le classement <ArrowUpRight size={18} /></Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ───── Annonces ───── */}
+      {announcements.length > 0 && (
+        <section className="gh-section">
+          <div className="gh-wrap">
+            <p className="gh-eyebrow" data-reveal>Actualités</p>
+            <h2 className="gh-h2" data-reveal>Dernières annonces.</h2>
+            <div className="grid md:grid-cols-3 gap-5">
+              {announcements.map((a, i) => (
+                <Link key={a.id} to="/annonces" className="gh-news" data-reveal={i}>
+                  <p style={{ fontSize: '.78rem', color: 'var(--muted)', marginBottom: '.5rem' }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</p>
+                  <h3 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '.5rem' }}>{a.title}</h3>
+                  <p className="line-clamp-3" style={{ color: 'var(--muted)', fontSize: '.92rem' }}>{a.body}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ───── Appel final ───── */}
+      <section className="gh-section" style={{ paddingTop: announcements.length ? 0 : undefined }}>
+        <div className="gh-wrap">
+          <div className="gh-cta" data-reveal>
+            <h2>Prêt à devenir méchant ?</h2>
+            <p>Dépose ta candidature en deux minutes. Un admin te répond par email.</p>
+            <Link to="/rejoindre" className="gh-btn gh-btn-light" data-magnetic>Rejoindre la guilde <ArrowUpRight size={18} /></Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  )
+}

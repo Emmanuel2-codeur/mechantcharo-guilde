@@ -24,7 +24,7 @@ export default function SecurityAlertsSection({ alerts, onChanged, setMessage, s
 
   return (
     <div className="mb-14">
-      <div className="flex items-center gap-2.5 mb-1"><ShieldAlert size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-700">Sécurité — réservé au super-admin</h2></div>
+      <div className="flex items-center gap-2.5 mb-1"><ShieldAlert size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-950">Sécurité — réservé au super-admin</h2></div>
       <p className="text-sm text-ink-600 mb-5">
         Détection automatique : rafales d'actions, suppressions en masse, tentative d'élévation de rôle, activité hors-heures.
         Une notification et un email sont envoyés dès qu'une anomalie est détectée.

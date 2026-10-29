@@ -13,6 +13,7 @@ import { uploadPublicFile } from '../lib/storage'
 import AdminTabs from '../components/AdminTabs'
 import PlayerCombobox from '../components/PlayerCombobox'
 import DashboardSection from '../components/admin/DashboardSection'
+import GuildAdmin from '../components/admin/GuildAdmin'
 import AuditLogSection from '../components/admin/AuditLogSection'
 import SecurityAlertsSection from '../components/admin/SecurityAlertsSection'
 import FinalistsAdmin from '../components/FinalistsAdmin'
@@ -115,6 +116,7 @@ export default function Admin() {
       { id: 'joueurs', label: 'Joueurs & poules', icon: <Users size={15} /> },
       { id: 'finalistes', label: 'Joueurs qualifiés', icon: <Trophy size={15} />, badge: players.filter(p => p.is_qualified).length },
       { id: 'matchs', label: 'Matchs', icon: <Swords size={15} />, badge: matches.filter(m => m.status !== 'completed').length },
+      { id: 'guilde', label: 'Vie de guilde', icon: <ClipboardCheck size={15} /> },
       { id: 'annonces', label: 'Annonces', icon: <Megaphone size={15} /> },
       { id: 'journal', label: 'Journal', icon: <History size={15} /> },
     ]
@@ -131,7 +133,7 @@ export default function Admin() {
           <div className="flex flex-wrap items-end justify-between gap-5 mb-8">
             <div>
               <span className="eyebrow mb-4"><ShieldAlert size={12} /> Espace administration{isSuperAdmin ? ' · Super-admin' : ''}</span>
-              <h1 className="font-display text-4xl md:text-5xl mb-2 text-ink-700">Panneau de contrôle</h1>
+              <h1 className="font-display text-4xl md:text-5xl mb-2 text-ink-950">Panneau de contrôle</h1>
               <p className="text-ink-600 max-w-xl">
                 Chaque action ici met à jour le site en direct : joueur validé → visible dans son groupe et
                 le classement · match programmé → apparaît en En cours à l'heure dite · info publiée → visible à l'accueil.
@@ -201,6 +203,7 @@ export default function Admin() {
                 </>
               )}
 
+              {tab === 'guilde' && <GuildAdmin setMessage={setMessage} setError={setError} />}
               {tab === 'annonces' && (
                 <AnnouncementsSection
                   announcements={announcements}
@@ -256,7 +259,7 @@ function PendingSection({ pending, groups, onChanged, setError, setMessage }) {
     <div className="mb-14">
       <div className="flex items-center gap-2.5 mb-1">
         <UserPlus size={18} className="text-charo-orange" />
-        <h2 className="font-bold text-lg text-ink-700">Accepter les invitations du joueur</h2>
+        <h2 className="font-bold text-lg text-ink-950">Accepter les invitations du joueur</h2>
       </div>
       <p className="text-sm text-ink-600 mb-5">
         Choisis un groupe puis valide : le joueur passe direct dans Poules et Classement.
@@ -327,7 +330,7 @@ function PlayerManagementSection({ players, groups, onChanged, setError, setMess
 
   return (
     <div className="mb-14">
-      <div className="flex items-center gap-2.5 mb-1"><Trophy size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-700">Joueurs approuvés / classement</h2></div>
+      <div className="flex items-center gap-2.5 mb-1"><Trophy size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-950">Joueurs approuvés / classement</h2></div>
       <p className="text-sm text-ink-600 mb-5">Modifie les informations d’un joueur qui alimentent le classement, ou supprime son inscription.</p>
       <div className="card divide-y divide-ink-700 overflow-hidden">
         {players.length === 0 && <p className="p-6 text-sm text-ink-600">Aucun joueur approuvé.</p>}
@@ -486,7 +489,7 @@ function ScheduleMatchSection({ players, groups, matches = [], onCreated, setErr
     <div className="mb-14">
       <div className="flex items-center gap-2.5 mb-1">
         <CalendarPlus size={18} className="text-charo-orange" />
-        <h2 className="font-bold text-lg text-ink-700">Programmer un match</h2>
+        <h2 className="font-bold text-lg text-ink-950">Programmer un match</h2>
       </div>
       <p className="text-sm text-ink-600 mb-5">
         Recherche un joueur par son pseudo, sa poule s'affiche automatiquement. Les derniers réglages
@@ -653,7 +656,7 @@ function ValidateScoreSection({ matches, onSaved, setError, setMessage }) {
     <div className="mb-14">
       <div className="flex items-center gap-2.5 mb-1">
         <ClipboardCheck size={18} className="text-charo-orange" />
-        <h2 className="font-bold text-lg text-ink-700">Valider le score du match</h2>
+        <h2 className="font-bold text-lg text-ink-950">Valider le score du match</h2>
       </div>
       <p className="text-sm text-ink-600 mb-5">
         Score = kills du joueur sur ce match. Une fois validé, le match sort automatiquement des matchs en cours et rejoint l'Historique.
@@ -827,7 +830,7 @@ function MatchManagementSection({ matches, players, groups, onChanged, setError,
 
   return (
     <div className="mb-14">
-      <div className="flex items-center gap-2.5 mb-1"><Pencil size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-700">Gestion des matchs</h2></div>
+      <div className="flex items-center gap-2.5 mb-1"><Pencil size={18} className="text-charo-orange" /><h2 className="font-bold text-lg text-ink-950">Gestion des matchs</h2></div>
       <p className="text-sm text-ink-600 mb-5">Chaque match enregistré peut être modifié ou supprimé. Une modification de score/dégâts recalcule le classement.</p>
       <div className="card divide-y divide-ink-700 overflow-hidden">
         {matches.map((m) => {
@@ -943,7 +946,7 @@ function AnnouncementsSection({ announcements, authorId, onChanged, setError, se
     <div>
       <div className="flex items-center gap-2.5 mb-1">
         <Megaphone size={18} className="text-charo-orange" />
-        <h2 className="font-bold text-lg text-ink-700">Publier une annonce</h2>
+        <h2 className="font-bold text-lg text-ink-950">Publier une annonce</h2>
       </div>
       <p className="text-sm text-ink-600 mb-5">Publication instantanée dans la page Annonces, avec commentaires, réponses et réactions.</p>
 

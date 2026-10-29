@@ -1,2 +1,8 @@
 [functions.send-push]
 verify_jwt = false
+
+[functions.admin-assistant]
+verify_jwt = true
+
+[functions.send-application-decision]
+verify_jwt = true

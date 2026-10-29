@@ -25,7 +25,7 @@ export default function Bracket() {
     <main className="py-10 lg:py-16">
       <div className="max-w-[1600px] mx-auto px-4 lg:px-8">
         <div className="bracket-page-head">
-          <div><span className="eyebrow mb-3"><Trophy size={13}/> Phase finale</span><h1 className="font-display text-5xl md:text-6xl text-ink-700">LE <span className="text-charo-orange">BRACKET</span></h1><p>32 finalistes · élimination directe · programmation manuelle · résultats en direct.</p></div>
+          <div><span className="eyebrow mb-3"><Trophy size={13}/> Phase finale</span><h1 className="font-display text-5xl md:text-6xl text-ink-950">LE <span className="text-charo-orange">BRACKET</span></h1><p>32 finalistes · élimination directe · programmation manuelle · résultats en direct.</p></div>
           <div className="flex items-center gap-3"><div className="bracket-stat"><strong>{matches.length}</strong><span>matchs programmés</span></div><div className="bracket-stat"><strong>{completed}</strong><span>résultats validés</span></div><button onClick={load} className="btn-outline" disabled={loading}><RefreshCw size={15} className={loading ? 'animate-spin' : ''}/> Actualiser</button></div>
         </div>
         {error && <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm mb-5">{error}</div>}

@@ -146,7 +146,7 @@ export default function Classement() {
                 Classement général
               </span>
 
-              <h1 className="font-display text-4xl md:text-5xl mb-3 text-ink-900">
+              <h1 className="font-display text-4xl md:text-5xl mb-3 text-ink-950">
                 Le classement
               </h1>
 

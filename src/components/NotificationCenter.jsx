@@ -44,6 +44,8 @@ function iconFor(type) {
   if (type === 'reaction') return '❤️'
   if (type === 'approval') return '🎉'
   if (type === 'security_alert') return '🚨'
+  if (type === 'event_reminder') return '⏰'
+  if (type === 'application') return '📝'
 
   return '📢'
 }

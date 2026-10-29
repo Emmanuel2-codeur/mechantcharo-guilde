@@ -1,43 +1,50 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Menu, X, Swords, ShieldCheck, UserRound, LogOut, Users } from 'lucide-react'
+import { Menu, X, Swords, ShieldCheck, LogOut, UserRound, ArrowUpRight } from 'lucide-react'
 import NotificationCenter from './NotificationCenter'
 import BackButton from './BackButton'
 import logo from '../assets/logo.jpg'
 import { useAuth } from '../lib/AuthContext'
-import { NAV_LINKS } from '../config'
+import { GUILD_LINKS, TOURNAMENT_LINKS, TOURNAMENT_BASE } from '../config'
 import { signOut } from '../lib/supabaseClient'
-
-const links = NAV_LINKS
-
+import { gsap, prefersReducedMotion } from '../lib/gsap'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const menuRef = useRef(null)
   const { session, profile, isAdmin } = useAuth()
   const location = useLocation()
+  const inTournament = location.pathname.startsWith(TOURNAMENT_BASE)
+  const initial = (profile?.pseudo || '?').trim().charAt(0).toUpperCase()
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) setOpen(false)
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('resize', handleResize)
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    const onResize = () => { if (window.innerWidth >= 1280) setOpen(false) }
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('resize', onResize)
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('scroll', onScroll)
     }
   }, [])
 
+  // Le menu mobile bloque le scroll de la page et fait apparaître ses liens en cascade (GSAP).
   useEffect(() => {
     if (!open) return undefined
-    const previousOverflow = document.body.style.overflow
+    const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previousOverflow
+    let ctx
+    if (!prefersReducedMotion() && menuRef.current) {
+      ctx = gsap.context(() => {
+        gsap.from('.nav-m-item', { y: 18, opacity: 0, duration: 0.45, stagger: 0.05, ease: 'power3.out' })
+      }, menuRef)
     }
+    return () => { document.body.style.overflow = previous; ctx?.revert() }
   }, [open])
 
   const handleSignOut = async () => {
@@ -46,27 +53,39 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-ink-700 bg-white/95 backdrop-blur-md relative">
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-        {location.pathname !== '/' && <BackButton className="back-button-nav" />}
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="Guilde MÉCHANTCHARO" className="w-8 h-8 rounded-full object-cover ring-2 ring-charo-orange/60" />
-          <div className="leading-none">
-            <p className="font-display text-lg tracking-wide text-ink-950">BATAILLE <span className="text-charo-orange">DES CHAROS</span></p>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-ink-600 text-opacity-80">Guilde Méchantcharo</p>
-          </div>
-        </Link>
+    <header className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-300 ${
+      scrolled ? 'bg-white/85 border-ink-700 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.35)]' : 'bg-white/70 border-transparent'
+    }`}>
+      <div className={`max-w-7xl mx-auto px-5 xl:px-8 flex items-center justify-between gap-6 transition-all duration-300 ${scrolled ? 'h-[68px]' : 'h-20'}`}>
+        {/* Marque */}
+        <div className="flex items-center gap-3 shrink-0">
+          {location.pathname !== '/' && <BackButton className="back-button-nav" />}
+          <Link to="/" className="group flex items-center gap-3">
+            <span className="relative">
+              <span className="absolute -inset-1 rounded-full bg-charo-gradient opacity-0 blur-md group-hover:opacity-60 transition-opacity" />
+              <img src={logo} alt="Guilde MÉCHANTCHARO" className="relative w-10 h-10 rounded-full object-cover ring-2 ring-charo-orange" />
+            </span>
+            <span className="leading-none">
+              <span className="block font-display text-[1.15rem] font-extrabold tracking-tight text-ink-950">
+                MÉCHANT<span className="text-charo-orange">CHARO</span>
+              </span>
+              <span className="block mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-ink-600">Guilde officielle</span>
+            </span>
+          </Link>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-8">
-          {links.map((l) => (
+        {/* Navigation (pilule) */}
+        <nav className="hidden xl:flex items-center gap-1 rounded-full border border-ink-700 bg-ink-800/80 p-1">
+          {GUILD_LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
+              end={l.to === '/'}
               className={({ isActive }) =>
-                `text-sm font-semibold tracking-wide transition-colors ${
-                  isActive ? 'text-charo-orange' : 'text-ink-600 hover:text-ink-950'
+                `relative rounded-full px-4 py-2 text-[13px] font-bold tracking-wide transition-all duration-200 ${
+                  isActive
+                    ? 'bg-white text-charo-orange shadow-[0_2px_10px_-2px_rgba(15,23,42,0.18)]'
+                    : 'text-ink-600 hover:text-ink-950 hover:bg-white/70'
                 }`
               }
             >
@@ -75,74 +94,119 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Compte */}
+        <div className="hidden xl:flex items-center gap-2.5 shrink-0">
           {session && <NotificationCenter />}
           {isAdmin && (
-            <Link to="/admin" className="btn-outline !px-4 !py-2 text-xs">
+            <Link to="/admin" className="inline-flex items-center gap-1.5 rounded-full bg-ink-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-charo-orange transition-colors">
               <ShieldCheck size={14} /> Admin
             </Link>
           )}
-
           {session ? (
-            <div className="flex items-center gap-2">
-              <Link to="/profil" className="flex items-center gap-2 rounded-xl border border-ink-700 px-3.5 py-2 text-sm font-semibold text-ink-950 hover:border-charo-orange transition-colors">
-                <UserRound size={16} className="text-charo-orange" />
+            <>
+              <Link to="/profil" className="flex items-center gap-2.5 rounded-full border border-ink-700 bg-white py-1.5 pl-1.5 pr-4 text-sm font-semibold text-ink-950 hover:border-charo-orange transition-colors">
+                <span className="w-8 h-8 rounded-full bg-charo-gradient text-white flex items-center justify-center text-sm font-extrabold">{initial}</span>
                 {profile?.pseudo || 'Mon profil'}
                 {profile?.status === 'pending' && (
                   <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">En attente</span>
                 )}
               </Link>
-              <button onClick={handleSignOut} className="w-9 h-9 rounded-xl border border-ink-700 flex items-center justify-center text-ink-600 hover:text-red-600 hover:border-red-200 transition-colors" aria-label="Se déconnecter">
+              <button onClick={handleSignOut} className="w-10 h-10 rounded-full border border-ink-700 flex items-center justify-center text-ink-600 hover:text-red-600 hover:border-red-200 transition-colors" aria-label="Se déconnecter">
                 <LogOut size={15} />
-              </button>
-            </div>
-          ) : (
-            <Link to="/connexion" className="btn-outline !px-5 !py-2.5 text-sm">
-              <Users size={16} strokeWidth={2.5} />
-              Se connecter
-            </Link>
-          )}
-        </div>
-
-        <button className="lg:hidden text-ink-950" onClick={() => setOpen(!open)} aria-label="Menu">
-          {open ? <X size={26} /> : <Menu size={26} />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="lg:hidden absolute left-0 right-0 top-full border-t border-ink-700 bg-white px-5 py-6 flex flex-col gap-5 shadow-2xl">
-          {links.map((l) => (
-            <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="text-ink-950 font-semibold text-base">
-              {l.label}
-            </NavLink>
-          ))}
-
-          {session && (
-            <div className="pt-2 border-t border-ink-700">
-              <NotificationCenter />
-            </div>
-          )}
-
-          {isAdmin && (
-            <Link to="/admin" onClick={() => setOpen(false)} className="text-charo-orange font-semibold text-base flex items-center gap-2">
-              <ShieldCheck size={16} /> Admin
-            </Link>
-          )}
-
-          {session ? (
-            <>
-              <Link to="/profil" onClick={() => setOpen(false)} className="btn-outline w-full">
-                <UserRound size={16} /> {profile?.pseudo || 'Mon profil'}
-              </Link>
-              <button onClick={handleSignOut} className="btn-outline w-full text-red-600 border-red-200">
-                <LogOut size={16} /> Se déconnecter
               </button>
             </>
           ) : (
-            <Link to="/connexion" onClick={() => setOpen(false)} className="btn-outline w-full mt-2">
-              <Users size={16} strokeWidth={2.5} /> Se connecter
-            </Link>
+            <>
+              <Link to="/connexion" className="rounded-full px-4 py-2.5 text-sm font-bold text-ink-950 hover:text-charo-orange transition-colors">Se connecter</Link>
+              <Link to="/rejoindre" className="inline-flex items-center gap-1.5 rounded-full bg-charo-gradient px-5 py-2.5 text-sm font-bold text-white shadow-glow hover:brightness-110 active:scale-[0.97] transition-all">
+                Rejoindre <ArrowUpRight size={16} />
+              </Link>
+            </>
           )}
+        </div>
+
+        <button
+          className="xl:hidden w-11 h-11 rounded-full border border-ink-700 bg-white flex items-center justify-center text-ink-950"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-expanded={open}
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Sous-navigation du tournoi */}
+      {inTournament && (
+        <div className="border-t border-ink-700/70 bg-gradient-to-r from-charo-orange/[0.07] via-transparent to-transparent">
+          <div className="max-w-7xl mx-auto px-5 xl:px-8 h-12 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
+            <Link to={TOURNAMENT_BASE} className="shrink-0 inline-flex items-center gap-2 rounded-full bg-ink-950 px-3.5 py-1.5 text-xs font-bold text-white mr-2">
+              <Swords size={13} className="text-charo-orange2" /> Bataille des Charos
+            </Link>
+            {TOURNAMENT_LINKS.map((l) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.end}
+                className={({ isActive }) =>
+                  `shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                    isActive ? 'bg-charo-orange/10 text-charo-orange' : 'text-ink-600 hover:text-ink-950 hover:bg-ink-950/5'
+                  }`
+                }
+              >
+                {l.label}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Menu mobile */}
+      {open && (
+        <div ref={menuRef} className="xl:hidden absolute left-0 right-0 top-full h-[calc(100svh-80px)] overflow-y-auto border-t border-ink-700 bg-white px-5 pt-6 pb-8 shadow-2xl">
+          <nav className="flex flex-col">
+            {GUILD_LINKS.map((l, i) => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === '/'}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `nav-m-item flex items-center gap-4 border-b border-ink-700/70 py-4 text-2xl font-extrabold tracking-tight ${isActive ? 'text-charo-orange' : 'text-ink-950'}`
+                }
+              >
+                <span className="w-6 text-xs font-bold text-ink-600">{String(i + 1).padStart(2, '0')}</span>
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="mt-6 flex flex-col gap-3">
+            {session && <div className="nav-m-item"><NotificationCenter /></div>}
+            {isAdmin && (
+              <Link to="/admin" onClick={() => setOpen(false)} className="nav-m-item inline-flex items-center justify-center gap-2 rounded-full bg-ink-950 py-3.5 text-sm font-bold text-white">
+                <ShieldCheck size={16} /> Admin
+              </Link>
+            )}
+            {session ? (
+              <>
+                <Link to="/profil" onClick={() => setOpen(false)} className="nav-m-item inline-flex items-center justify-center gap-2 rounded-full border border-ink-700 py-3.5 text-sm font-bold">
+                  <UserRound size={16} className="text-charo-orange" /> {profile?.pseudo || 'Mon profil'}
+                </Link>
+                <button onClick={handleSignOut} className="nav-m-item inline-flex items-center justify-center gap-2 rounded-full border border-red-200 py-3.5 text-sm font-bold text-red-600">
+                  <LogOut size={16} /> Se déconnecter
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/rejoindre" onClick={() => setOpen(false)} className="nav-m-item inline-flex items-center justify-center gap-2 rounded-full bg-charo-gradient py-3.5 text-sm font-bold text-white shadow-glow">
+                  Rejoindre la guilde <ArrowUpRight size={16} />
+                </Link>
+                <Link to="/connexion" onClick={() => setOpen(false)} className="nav-m-item inline-flex items-center justify-center rounded-full border border-ink-700 py-3.5 text-sm font-bold">
+                  Se connecter
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </header>
