@@ -64,11 +64,11 @@ export default function Navbar() {
           <Link to="/" className="group flex items-center gap-3">
             <span className="relative">
               <span className="absolute -inset-1 rounded-full bg-charo-gradient opacity-0 blur-md group-hover:opacity-60 transition-opacity" />
-              <img src={logo} alt="Guilde MÉCHANTCHARO" className="relative w-10 h-10 rounded-full object-cover ring-2 ring-charo-orange" />
+              <img src={logo} alt="Guilde MECHANTCHARO" className="relative w-10 h-10 rounded-full object-cover ring-2 ring-charo-orange" />
             </span>
             <span className="leading-none">
               <span className="block font-display text-[1.15rem] font-extrabold tracking-tight text-ink">
-                MÉCHANT<span className="text-charo-orange">CHARO</span>
+                MECHANT<span className="text-charo-orange">CHARO</span>
               </span>
               <span className="block mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">Guilde officielle</span>
             </span>
