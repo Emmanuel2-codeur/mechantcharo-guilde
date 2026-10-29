@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Swords } from 'lucide-react'
 import logo from '@/assets/logo.jpg'
 
-const WORDMARK = 'LA BATAILLE DES CHAROS'
+const WORDMARK = 'MECHANT CHARO GUILD'
 
 // Palette des tuiles façon "pins" Pinterest, assortie à la charte du site
 const TILE_STYLES = [
