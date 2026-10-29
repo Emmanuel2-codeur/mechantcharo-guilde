@@ -128,7 +128,7 @@ export default function GuildHome() {
               <span className="gh-line gh-big"><span>MÉCHANTS</span></span>
               <span className="gh-line gh-big gh-outline"><span>CHARO</span></span>
             </h1>
-            <p className="gh-lead gh-fade">
+            <p className="gh-lead gh-fade text-charo-orange">
               Une guilde qui joue pour gagner. Tournois, guerres de guilde, classement des membres et des duos : tout se passe ici.
             </p>
             <div className="gh-actions gh-fade">

@@ -1,3 +1,5 @@
+NOTE : la vie de guilde (membres, événements, honneur, duos, Charo d'Or…) est dans sql/guild/ (voir docs/GUILD_SETUP.md).
+
 # SQL réduit — La Bataille des Charos
 
 Le dossier passe de nombreux fichiers SQL à 3 fichiers principaux :

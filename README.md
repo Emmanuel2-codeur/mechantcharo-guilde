@@ -1,3 +1,5 @@
+> **Structure du projet et règles : voir `docs/ARCHITECTURE.md`. Mise en route SQL / fonctions : `docs/GUILD_SETUP.md`.**
+
 # La Bataille des Charos — Plateforme Esport
 
 Site officiel du tournoi Free Fire 1v1 organisé par la guilde **MÉCHANTCHARO**.

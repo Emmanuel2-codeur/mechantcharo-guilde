@@ -1,0 +1,109 @@
+/* Accueil de la guilde : noir + orange Charo (couleurs de base du site). */
+.gh { --ink: #0b0f1a; --accent: #ff5a1f; --accent-2: #ff8a3d; --amber: #ffb020; --muted: #5b6475; --line: #e6e8ee; background: #fff; color: var(--ink); }
+
+/* ───────── Hero ───────── */
+.gh-hero { position: relative; isolation: isolate; overflow: hidden; background: #fff; min-height: calc(100svh - 80px); display: flex; align-items: center; }
+.gh-grid { position: absolute; inset: 0; z-index: 0;
+  background-image: linear-gradient(rgba(11,15,26,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(11,15,26,.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 75% at 72% 45%, #000 15%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 75% at 72% 45%, #000 15%, transparent 75%); }
+.gh-glow { position: absolute; z-index: 0; right: 10%; top: 28%; width: 38vw; height: 38vw; max-width: 560px; max-height: 560px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,90,31,.30), transparent 65%); filter: blur(30px); }
+
+/* Le logo (fond blanc) est fondu dans la page avec multiply ; le dégradé à gauche garde le texte lisible. */
+.gh-logo { position: absolute; z-index: 1; top: 0; bottom: 0; right: -7%; width: min(58vw, 840px); mix-blend-mode: multiply; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 36%), radial-gradient(closest-side, #000 93%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 36%), radial-gradient(closest-side, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+.gh-logo-scroll, .gh-logo-par, .gh-logo-float { width: 100%; height: 100%; }
+.gh-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.gh-content { position: relative; z-index: 2; width: 100%; max-width: 1200px; margin: 0 auto; padding: 4rem 1.25rem 6rem; }
+.gh-inner { max-width: 760px; }
+.gh-chip { display: inline-flex; align-items: center; gap: .6rem; padding: .45rem .95rem; border: 1px solid rgba(11,15,26,.12); border-radius: 999px; background: rgba(255,255,255,.85); font-size: .78rem; font-weight: 600; margin-bottom: 1.75rem; }
+.gh-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(255,90,31,.6); animation: gh-pulse 2s infinite; }
+@keyframes gh-pulse { 70% { box-shadow: 0 0 0 10px rgba(255,90,31,0); } 100% { box-shadow: 0 0 0 0 rgba(255,90,31,0); } }
+
+.gh-title { font-weight: 900; letter-spacing: -.045em; line-height: .9; margin: 0; }
+.gh-line { display: block; width: max-content; max-width: 100%; overflow: hidden; padding: .06em .08em .1em 0; }
+.gh-line > span { display: block; }
+.gh-hello { font-size: clamp(1.5rem, 3vw, 2.3rem); font-weight: 600; letter-spacing: -.02em; color: var(--muted); }
+.gh-big { font-size: clamp(2.9rem, 8.4vw, 7.4rem); }
+.gh-outline { color: transparent; -webkit-text-stroke: 2px var(--ink); }
+.gh-lead { margin: 1.75rem 0 2.25rem; max-width: 30rem; font-size: 1.1rem; line-height: 1.65; color: var(--muted); }
+
+.gh-actions { display: flex; flex-wrap: wrap; gap: .9rem; }
+.gh-btn { display: inline-flex; align-items: center; gap: .6rem; padding: 1rem 1.6rem; border-radius: 999px; font-weight: 700; font-size: .98rem; transition: background .25s, color .25s, border-color .25s; will-change: transform; }
+.gh-btn-dark { background: var(--ink); color: #fff; }
+.gh-btn-dark:hover { background: var(--accent); }
+.gh-btn-ghost { border: 1.5px solid var(--ink); color: var(--ink); background: rgba(255,255,255,.6); }
+.gh-btn-ghost:hover { background: var(--ink); color: #fff; }
+.gh-btn-light { background: #fff; color: var(--ink); }
+.gh-btn-light:hover { background: var(--ink); color: #fff; }
+
+.gh-stats { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.gh-stat strong { display: block; font-size: 2.1rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.gh-stat span { font-size: .8rem; color: var(--muted); }
+
+.gh-scroll { position: absolute; z-index: 2; left: 1.25rem; bottom: 1.5rem; display: flex; align-items: center; gap: .75rem; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.gh-scroll i { position: relative; width: 44px; height: 1px; background: var(--line); overflow: hidden; }
+.gh-scroll i::after { content: ''; position: absolute; inset: 0; background: var(--ink); animation: gh-slide 1.8s ease-in-out infinite; }
+@keyframes gh-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@media (min-width: 1280px) { .gh-scroll { left: calc((100vw - 1200px) / 2 + 1.25rem); } }
+
+@media (max-width: 899px) {
+  .gh-logo { right: 50%; transform: translateX(50%); width: 130vw; opacity: .2; -webkit-mask-image: none; mask-image: none; }
+  .gh-content { padding: 3rem 1.25rem 5rem; }
+}
+
+/* ───────── Bande défilante ───────── */
+.gh-marquee { background: var(--ink); color: #fff; overflow: hidden; padding: 1.15rem 0; }
+.gh-track { display: flex; width: max-content; }
+.gh-track > div { display: flex; align-items: center; gap: 2.5rem; padding-right: 2.5rem; white-space: nowrap; }
+.gh-track span { font-size: 1.35rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+.gh-track em { font-style: normal; color: var(--accent); }
+
+/* ───────── Sections ───────── */
+.gh-section { padding: 6rem 1.25rem; }
+.gh-wrap { max-width: 1200px; margin: 0 auto; }
+.gh-eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
+.gh-h2 { font-size: clamp(2rem, 4.2vw, 3.3rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin: 0 0 3rem; }
+
+.gh-bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.gh-card { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; padding: 2rem; min-height: 220px; border: 1px solid var(--line); border-radius: 28px; background: #fff; transition: transform .35s, box-shadow .35s, border-color .35s; }
+.gh-card:hover { transform: translateY(-5px); box-shadow: 0 24px 50px -24px rgba(11,15,26,.25); border-color: rgba(255,90,31,.5); }
+.gh-card-tall { grid-column: span 2; grid-row: span 2; min-height: 460px; }
+.gh-card-dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+.gh-card-dark::after { content: ''; position: absolute; right: -80px; bottom: -80px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(255,90,31,.55), transparent 65%); pointer-events: none; }
+.gh-label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
+.gh-card h3 { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: .6rem 0 .8rem; }
+.gh-card p { color: var(--muted); line-height: 1.6; }
+.gh-card-dark p { color: rgba(255,255,255,.7); }
+.gh-more { display: inline-flex; align-items: center; gap: .5rem; font-weight: 700; font-size: .92rem; position: relative; z-index: 1; }
+.gh-more svg { transition: transform .3s; }
+.gh-card:hover .gh-more svg { transform: translate(4px, -4px); }
+.gh-status { display: inline-flex; align-items: center; gap: .5rem; padding: .35rem .8rem; border-radius: 999px; background: rgba(255,255,255,.12); font-size: .75rem; font-weight: 700; }
+.gh-bignum { font-size: 4.2rem; font-weight: 900; letter-spacing: -.05em; line-height: 1; }
+@media (max-width: 899px) { .gh-bento { grid-template-columns: 1fr; } .gh-card-tall { grid-column: auto; grid-row: auto; min-height: 320px; } .gh-section { padding: 4.5rem 1.25rem; } }
+
+/* ───────── Honneur ───────── */
+.gh-honor { background: var(--ink); color: #fff; padding: 6rem 1.25rem; overflow: hidden; position: relative; }
+.gh-honor::before { content: ''; position: absolute; left: 50%; top: -40%; width: 70vw; height: 70vw; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,90,31,.25), transparent 60%); pointer-events: none; }
+.gh-honor-grid { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.gh-level { font-size: clamp(3.2rem, 9vw, 7rem); font-weight: 900; letter-spacing: -.045em; line-height: .95; color: transparent; -webkit-text-stroke: 2px #fff; }
+.gh-score { font-size: clamp(4.5rem, 13vw, 10rem); font-weight: 900; letter-spacing: -.05em; line-height: .9; background: linear-gradient(180deg, #fff 25%, #ffb27a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gh-bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; margin: 1.5rem 0 .6rem; }
+.gh-bar > div { height: 100%; width: 100%; transform-origin: left center; border-radius: 99px; background: linear-gradient(90deg, #ff5a1f, #ff8a3d 60%, #ffb020); }
+@media (max-width: 899px) { .gh-honor-grid { grid-template-columns: 1fr; gap: 2rem; } }
+
+/* ───────── Annonces & CTA ───────── */
+.gh-news { display: block; padding: 1.75rem; border: 1px solid var(--line); border-radius: 24px; transition: transform .3s, border-color .3s; }
+.gh-news:hover { transform: translateY(-4px); border-color: var(--accent); }
+.gh-cta { position: relative; overflow: hidden; border-radius: 36px; padding: clamp(2.5rem, 7vw, 5rem); color: #fff; background: linear-gradient(135deg, #ff5a1f 0%, #ff6f2b 55%, #ff8a3d 100%); }
+.gh-cta::after { content: ''; position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); }
+.gh-cta h2 { font-size: clamp(2.2rem, 5.5vw, 4.4rem); font-weight: 900; letter-spacing: -.04em; line-height: 1; margin: 0 0 1.25rem; position: relative; z-index: 1; }
+.gh-cta p { max-width: 32rem; color: rgba(255,255,255,.8); margin-bottom: 2rem; position: relative; z-index: 1; }
+.gh-cta .gh-btn { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) { .gh-dot, .gh-scroll i::after { animation: none; } .gh-card, .gh-news { transition: none; } }

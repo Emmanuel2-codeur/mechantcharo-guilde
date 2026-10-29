@@ -4,17 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: {
-          950: '#111827',
-          900: '#FFFFFF',
-          800: '#F8FAFC',
-          700: '#E5E7EB',
-          600: '#6B7280',
-        },
-        cream: {
-          DEFAULT: '#111827',
-          soft: '#374151',
-        },
+        // Palette sémantique (clair) : ink = texte/surfaces sombres, surface = fonds, line = bordures, muted = texte secondaire
+        ink: { DEFAULT: '#111827' },
+        surface: { DEFAULT: '#FFFFFF', soft: '#F8FAFC' },
+        line: '#E5E7EB',
+        muted: '#6B7280',
         charo: {
           orange: '#FF5A1F',
           orange2: '#FF8A3D',
