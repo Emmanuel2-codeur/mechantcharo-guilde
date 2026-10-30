@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CheckCircle2, LoaderCircle, LogOut, ShieldCheck, UserRound } from 'lucide-react'
+import MemberProfileEditor from '@/features/auth/MemberProfileEditor'
 import { signOut, supabase } from '@/shared/lib/supabaseClient'
 
 export default function Profil() {
@@ -122,6 +123,7 @@ export default function Profil() {
 
           {!loading && session && profile && (
             <div className="space-y-6">
+              {profile?.status === 'approved' && <MemberProfileEditor />}
               <form onSubmit={saveProfile} className="card p-6 md:p-8">
                 <label className="block">
                   <span className="block text-sm font-bold text-ink mb-2">Ton pseudo</span>

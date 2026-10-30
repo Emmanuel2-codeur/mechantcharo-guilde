@@ -65,7 +65,9 @@ export default function HonorAdmin({ members, run, setError }) {
         <form className="card p-4 flex flex-wrap gap-3 mb-4" onSubmit={async (e) => {
           e.preventDefault()
           if (!newBadge.label.trim()) return
-          if (await run(supabase.from('badges').insert({ label: newBadge.label.trim(), emoji: newBadge.emoji || '🏅' }), 'Badge créé.')) { setNewBadge({ label: '', emoji: '🏅' }); load() }
+          const { error } = await supabase.from('badges').insert({ label: newBadge.label.trim(), emoji: newBadge.emoji || '🏅' })
+          if (error) { setError(error.code === '23505' ? 'Un badge porte déjà ce nom.' : error.message); return }
+          setNewBadge({ label: '', emoji: '🏅' }); run(Promise.resolve({ error: null }), 'Badge créé.'); load()
         }}>
           <input className="input !w-16 text-center" value={newBadge.emoji} onChange={(e) => setNewBadge({ ...newBadge, emoji: e.target.value })} />
           <input className="input flex-1 min-w-[200px]" placeholder="Nom du badge" value={newBadge.label} onChange={(e) => setNewBadge({ ...newBadge, label: e.target.value })} />
@@ -74,7 +76,14 @@ export default function HonorAdmin({ members, run, setError }) {
         <form className="card p-4 flex flex-wrap gap-3" onSubmit={async (e) => {
           e.preventDefault()
           if (!award.member_id || !award.badge_id) return
-          await run(supabase.from('member_badges').insert(award), 'Badge décerné.')
+          const { error } = await supabase.from('member_badges').insert(award)
+          if (error) {
+            setError(error.code === '23505'
+              ? 'Ce badge a déjà été décerné à ce membre pour la même période. Exécute sql/guild/09_access_control.sql pour autoriser plusieurs attributions.'
+              : error.message)
+            return
+          }
+          run(Promise.resolve({ error: null }), 'Badge décerné.')
         }}>
           <select className="input flex-1 min-w-[180px]" value={award.member_id} onChange={(e) => setAward({ ...award, member_id: e.target.value })}>
             <option value="">Membre…</option>{active.map((m) => <option key={m.id} value={m.id}>{m.pseudo}</option>)}

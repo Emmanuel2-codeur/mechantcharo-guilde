@@ -4,12 +4,15 @@ import Layout from '@/app/Layout'
 import SplashScreen from '@/app/SplashScreen'
 import { TOURNAMENT_BASE, LEGACY_REDIRECTS } from '@/app/config'
 import AdminRoute from '@/features/auth/AdminRoute'
+import RequireMember from '@/features/auth/RequireMember'
 import Login from '@/features/auth/pages/Login'
 import Profil from '@/features/auth/pages/Profil'
 import Annonces from '@/features/announcements/pages/Annonces'
 import GuildHome from '@/features/guild/pages/GuildHome'
 import LaGuilde from '@/features/guild/pages/LaGuilde'
 import CharoDor from '@/features/charodor/pages/CharoDor'
+import Realisations from '@/features/guild/pages/Realisations'
+import Membre from '@/features/guild/pages/Membre'
 import Rejoindre from '@/features/guild/pages/Rejoindre'
 import ClassementGuilde from '@/features/rankings/pages/ClassementGuilde'
 import Tournois from '@/features/tournament/pages/Tournois'
@@ -40,19 +43,25 @@ export default function App() {
         <Route path="guilde" element={<LaGuilde />} />
         <Route path="charo-dor" element={<CharoDor />} />
         <Route path="rejoindre" element={<Rejoindre />} />
-        <Route path="classement-guilde" element={<ClassementGuilde />} />
+        <Route path="realisations" element={<Realisations />} />
+        <Route path="membre/:id" element={<Membre />} />
         <Route path="annonces" element={<Annonces />} />
 
-        {/* Tournois */}
+        {/* Tournois : liste visible par tous, détail réservé aux membres */}
         <Route path="tournois" element={<Tournois />} />
-        <Route path={TOURNAMENT_BASE} element={<Landing />} />
-        <Route path={t('matchs')} element={<Matchs />} />
-        <Route path={t('groupes')} element={<Groupes />} />
-        <Route path={t('bracket')} element={<Bracket />} />
-        <Route path={t('finalistes')} element={<Finalistes />} />
-        <Route path={t('reglement')} element={<Reglement />} />
-        <Route path={t('classement')} element={<Classement />} />
-        <Route path={t('historique')} element={<Historique />} />
+
+        {/* Réservé aux membres approuvés */}
+        <Route element={<RequireMember />}>
+          <Route path="classement-guilde" element={<ClassementGuilde />} />
+          <Route path={TOURNAMENT_BASE} element={<Landing />} />
+          <Route path={t('matchs')} element={<Matchs />} />
+          <Route path={t('groupes')} element={<Groupes />} />
+          <Route path={t('bracket')} element={<Bracket />} />
+          <Route path={t('finalistes')} element={<Finalistes />} />
+          <Route path={t('reglement')} element={<Reglement />} />
+          <Route path={t('classement')} element={<Classement />} />
+          <Route path={t('historique')} element={<Historique />} />
+        </Route>
 
         {/* Compte et administration */}
         <Route path="connexion" element={<Login />} />

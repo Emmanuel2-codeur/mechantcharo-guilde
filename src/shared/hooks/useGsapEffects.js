@@ -36,6 +36,7 @@ export function useReveal(ref, deps = []) {
 }
 
 // Compteurs animés : <span data-count="42" /> compte de 0 à 42 ; <div data-bar="60" /> remplit une jauge à 60 %.
+// Si la valeur change (données qui arrivent après coup), l'animation est relancée avec la nouvelle valeur.
 export function useCountUp(ref, deps = []) {
   const ctx = useRef(null)
 
@@ -44,22 +45,26 @@ export function useCountUp(ref, deps = []) {
     const reduce = prefersReducedMotion()
     if (!ctx.current) ctx.current = gsap.context(() => {}, ref)
     ctx.current.add(() => {
-      ref.current.querySelectorAll('[data-count]:not([data-counted])').forEach((el) => {
-        el.setAttribute('data-counted', '1')
+      ref.current.querySelectorAll('[data-count]').forEach((el) => {
+        if (el.dataset.counted === el.dataset.count) return
+        el.dataset.counted = el.dataset.count
         const target = Number(el.dataset.count) || 0
+        el._tween?.kill()
         if (reduce) { el.textContent = target; return }
         const o = { v: 0 }
-        gsap.to(o, {
+        el._tween = gsap.to(o, {
           v: target, duration: 1.8, ease: 'power2.out',
           scrollTrigger: { trigger: el, start: 'top 92%', once: true },
           onUpdate: () => { el.textContent = Math.round(o.v) },
         })
       })
-      ref.current.querySelectorAll('[data-bar]:not([data-counted])').forEach((el) => {
-        el.setAttribute('data-counted', '1')
+      ref.current.querySelectorAll('[data-bar]').forEach((el) => {
+        if (el.dataset.counted === el.dataset.bar) return
+        el.dataset.counted = el.dataset.bar
         const pct = Math.min(100, Number(el.dataset.bar) || 0)
+        el._tween?.kill()
         if (reduce) { el.style.transform = `scaleX(${pct / 100})`; return }
-        gsap.fromTo(el, { scaleX: 0 }, {
+        el._tween = gsap.fromTo(el, { scaleX: 0 }, {
           scaleX: pct / 100, duration: 1.6, ease: 'power3.out',
           scrollTrigger: { trigger: el, start: 'top 92%', once: true },
         })

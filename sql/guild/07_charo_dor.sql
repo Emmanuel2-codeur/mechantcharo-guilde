@@ -19,7 +19,8 @@ insert into public.charo_dor_titles (code, label, description, value_hint, sort_
   ('gvg_onetap',     'Plus haut kill one tap des GVG',          'Record de kills one tap en guilde vs guilde',               'Kills one tap', 4),
   ('gvg_spam',       'Plus haut kill spam des GVG',             'Record de kills spam en guilde vs guilde',                  'Kills spam',    5),
   ('war_points',     'Plus haut point des guerres de guilde',   'Record de points en guerre de guilde',                      'Points',        6),
-  ('weekly_contrib', 'Record de contribution hebdomadaire',     'Record de contribution hebdomadaire de la guilde',          'Contribution',  7)
+  ('weekly_contrib', 'Record de contribution hebdomadaire',     'Record de contribution hebdomadaire de la guilde',          'Contribution',  7),
+  ('tournois_externes', 'Meilleur joueur des tournois externes', 'Le joueur qui brille le plus dans les tournois organisés hors de la guilde', 'Tournoi', 8)
 on conflict (code) do nothing;
 
 -- Un enregistrement par attribution. Un seul détenteur « actuel » par titre ; les anciens forment l'historique.

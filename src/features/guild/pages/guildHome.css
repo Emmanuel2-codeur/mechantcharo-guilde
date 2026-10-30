@@ -107,3 +107,7 @@
 .gh-cta .gh-btn { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) { .gh-dot, .gh-scroll i::after { animation: none; } .gh-card, .gh-news { transition: none; } }
+
+/* Réseaux sociaux de l'accueil */
+.gh-socials { margin-top: 2rem; }
+.gh-social-label { margin-bottom: .75rem; font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }

@@ -5,12 +5,9 @@ import {
   CalendarDays,
   Clock3,
   Filter,
-  History,
   LoaderCircle,
   Radio,
-  Swords,
-} from 'lucide-react'
-import { Link } from 'react-router-dom'
+  Swords } from 'lucide-react'
 
 import { supabase } from '@/shared/lib/supabaseClient'
 import { phaseLabel } from '@/features/tournament/phaseLabels'
@@ -24,13 +21,10 @@ const filters = [
 const typeMeta = {
   onetap: {
     label: 'One Tap',
-    detail: 'Headshot Only',
-  },
+    detail: 'Headshot Only' },
   spam: {
     label: 'Spam',
-    detail: 'Bodyshot',
-  },
-}
+    detail: 'Bodyshot' } }
 
 function effectiveStatus(match, now = Date.now()) {
   if (match.status === 'in_progress') return 'in_progress'
@@ -68,8 +62,7 @@ function formatDate(date) {
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
-    minute: '2-digit',
-  })
+    minute: '2-digit' })
 }
 
 function sectionMeta(status) {
@@ -78,17 +71,13 @@ function sectionMeta(status) {
       title: 'En cours',
       subtitle: 'Les affrontements actuellement en train de se jouer',
       icon: Radio,
-      badge: '● EN COURS',
-      
-    },
+      badge: '● EN COURS' },
 
     scheduled: {
       title: 'À venir',
       subtitle: 'Les prochaines rencontres programmées par la guilde',
       icon: Clock3,
-      badge: 'À VENIR',
-    },
-  }[status]
+      badge: 'À VENIR' } }[status]
 }
 
 export default function Matchs() {
@@ -133,8 +122,7 @@ export default function Matchs() {
       .in('status', ['scheduled', 'in_progress', 'aller_completed'])
       .order('scheduled_at', {
         ascending: true,
-        nullsFirst: false,
-      })
+        nullsFirst: false })
 
     if (queryError) {
       console.error(queryError)
@@ -156,8 +144,7 @@ export default function Matchs() {
         {
           event: '*',
           schema: 'public',
-          table: 'matches',
-        },
+          table: 'matches' },
         loadMatches
       )
       .subscribe()
@@ -179,8 +166,7 @@ export default function Matchs() {
         ...match,
         isRetourLeg: match.status === 'aller_completed',
         displayDate: match.status === 'aller_completed' ? match.scheduled_at_retour : match.scheduled_at,
-        status: effectiveStatus(match, now),
-      })),
+        status: effectiveStatus(match, now) })),
     [matches, now]
   )
 
@@ -189,8 +175,7 @@ export default function Matchs() {
       [...mapped].sort((a, b) => {
         const order = {
           in_progress: 0,
-          scheduled: 1,
-        }
+          scheduled: 1 }
 
         const statusDiff =
           order[a.status] - order[b.status]
@@ -218,8 +203,7 @@ export default function Matchs() {
     ).length,
     scheduled: sorted.filter(
       (match) => match.status === 'scheduled'
-    ).length,
-  }
+    ).length }
 
   return (
     <div className="bg-white text-ink">
@@ -381,8 +365,7 @@ export default function Matchs() {
                                 label:
                                   match.match_type ||
                                   'Match',
-                                detail: '',
-                              }
+                                detail: '' }
 
                             return (
                               <article

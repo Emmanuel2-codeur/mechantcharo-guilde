@@ -1,14 +1,16 @@
 import { supabase } from '@/shared/lib/supabaseClient'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
-import { Card, QueryState, EmptyState } from '@/shared/ui'
+import { useAccess } from '@/features/auth/useAccess'
+import { Avatar, Card, QueryState, EmptyState } from '@/shared/ui'
 import { GUILD_ROLES, ACTIVITY, roleLabel } from '@/features/guild/guild'
 
 const roleOrder = (r) => GUILD_ROLES.findIndex((x) => x.value === r)
 
-/** Liste publique des membres (les joueurs acceptés par les admins) avec leur niveau d'activité sur 30 jours. */
+/** Liste des membres : visible par tous (photo, rôle, rang). Le niveau d'activité n'est montré qu'aux membres. */
 export default function MembersView() {
-  const members = useSupabaseQuery(() => supabase.from('guild_members').select('id, pseudo, guild_role, game_rank').eq('is_active', true), [])
-  const activity = useSupabaseQuery(() => supabase.rpc('guild_member_activity', { p_days: 30 }), [])
+  const { isMember } = useAccess()
+  const members = useSupabaseQuery(() => supabase.from('guild_members').select('id, pseudo, guild_role, game_rank, avatar_url').eq('is_active', true), [])
+  const activity = useSupabaseQuery(() => supabase.rpc('guild_member_activity', { p_days: 30 }), [], { enabled: isMember })
   const byMember = Object.fromEntries((activity.data || []).map((a) => [a.member_id, a]))
 
   return (
@@ -16,16 +18,19 @@ export default function MembersView() {
       {(rows) => (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[...rows].sort((a, b) => roleOrder(a.guild_role) - roleOrder(b.guild_role) || a.pseudo.localeCompare(b.pseudo)).map((m) => {
-            const act = ACTIVITY[byMember[m.id]?.activity || 'nouveau']
+            const act = isMember ? ACTIVITY[byMember[m.id]?.activity || 'nouveau'] : null
             return (
-              <Card key={m.id} data-reveal className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
+              <Card key={m.id} to={`/membre/${m.id}`} data-reveal className="flex items-center gap-4">
+                <Avatar src={m.avatar_url} name={m.pseudo} size="md" />
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-lg font-bold">{m.pseudo}</p>
-                  <p className="text-sm text-muted">{roleLabel(m.guild_role)}{m.game_rank ? ` · ${m.game_rank}` : ''}</p>
+                  <p className="truncate text-sm text-muted">{roleLabel(m.guild_role)}{m.game_rank ? ` · ${m.game_rank}` : ''}</p>
                 </div>
-                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${act.cls}`}>
-                  <span className={`h-2 w-2 rounded-full ${act.dot}`} /> {act.label}
-                </span>
+                {act && (
+                  <span className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${act.cls}`}>
+                    <span className={`h-2 w-2 rounded-full ${act.dot}`} /> {act.label}
+                  </span>
+                )}
               </Card>
             )
           })}

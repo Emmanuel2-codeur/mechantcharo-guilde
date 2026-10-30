@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react'
 import { Page, PageHeader } from '@/shared/ui'
 import { supabase } from '@/shared/lib/supabaseClient'
 
-const empty = { pseudo: '', ff_uid: '', email: '', game_rank: '', availability: '', message: '', website: '' }
+const empty = { pseudo: '', ff_uid: '', email: '', game_rank: '', message: '', website: '' }
 
 export default function Rejoindre() {
   const ref = useRef(null)
@@ -22,7 +22,7 @@ export default function Rejoindre() {
     setBusy(true)
     const { error } = await supabase.rpc('submit_guild_application', {
       p_pseudo: form.pseudo, p_ff_uid: form.ff_uid, p_email: form.email,
-      p_game_rank: form.game_rank, p_availability: form.availability, p_message: form.message,
+      p_game_rank: form.game_rank, p_message: form.message,
     })
     setBusy(false)
     if (error) setError(error.message)
@@ -46,7 +46,6 @@ export default function Rejoindre() {
             <Field label="ID Free Fire *"><input className="input" required minLength={4} maxLength={20} inputMode="numeric" value={form.ff_uid} onChange={set('ff_uid')} /></Field>
             <Field label="Email *"><input className="input" type="email" required maxLength={120} value={form.email} onChange={set('email')} /></Field>
             <Field label="Rang en jeu"><input className="input" maxLength={40} placeholder="Ex : Héroïque, Grand Maître…" value={form.game_rank} onChange={set('game_rank')} /></Field>
-            <Field label="Disponibilités"><input className="input" maxLength={200} placeholder="Ex : soirs en semaine, week-end" value={form.availability} onChange={set('availability')} /></Field>
             <Field label="Parle-nous de toi"><textarea className="input" rows={4} maxLength={800} value={form.message} onChange={set('message')} /></Field>
             {/* Champ piège : invisible pour les humains */}
             <input tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px]" value={form.website} onChange={set('website')} />

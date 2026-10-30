@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CalendarClock, Crown, LoaderCircle, Trophy, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { CalendarClock, Crown, LoaderCircle, Trophy, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { LinkTabs } from '@/shared/ui'
 import { FINAL_TABS } from '@/app/config'

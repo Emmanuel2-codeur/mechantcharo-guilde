@@ -1,14 +1,13 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Swords, Trophy, Activity, Clock, CheckCircle2, ArrowUpRight, Radio, CalendarClock, Pause, Play } from 'lucide-react'
+import { Users, Swords, Trophy, Activity, CheckCircle2, ArrowUpRight, Radio, CalendarClock, Play } from 'lucide-react'
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from 'recharts'
 
 const ICON_BG = {
   orange: 'bg-charo-orange/12 text-charo-orange',
   amber: 'bg-charo-amber/15 text-charo-amber',
   live: 'bg-red-50 text-live',
-  ink: 'bg-ink text-white',
-}
+  ink: 'bg-ink text-white' }
 
 function KpiCard({ icon, tone = 'orange', label, value, trend, index }) {
   return (

@@ -3,12 +3,20 @@
 export const TOURNAMENT_BASE = '/tournois/bataille-des-charos'
 export const tPath = (path = '') => `${TOURNAMENT_BASE}${path}`
 
-// Navigation globale (guilde) : 6 entrées. « La guilde » regroupe membres + événements, « Classement » regroupe membres + duos.
+// Réseaux sociaux de la guilde (affichés sur l'accueil et dans le footer)
+export const SOCIALS = [
+  { id: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/mechantcharo1/' },
+  { id: 'tiktok', label: 'TikTok', href: 'https://www.tiktok.com/@mechantcharo4' },
+  { id: 'whatsapp', label: 'Communauté WhatsApp', short: 'WhatsApp', href: 'https://wa.me/22890808584' },
+]
+
+// Navigation globale (guilde) : 6 entrées. « La guilde » regroupe membres + événements, « Classement » (membres + duos) est réservé aux membres, « Réalisations » est public.
 export const GUILD_LINKS = [
   { to: '/', label: 'Accueil' },
   { to: '/tournois', label: 'Tournois' },
   { to: '/guilde', label: 'La guilde', also: ['/membres', '/evenements', '/rejoindre'] },
-  { to: '/classement-guilde', label: 'Classement' },
+  { to: '/realisations', label: 'Réalisations' },
+  { to: '/classement-guilde', label: 'Classement', members: true },
   { to: '/charo-dor', label: 'Charo d’Or' },
   { to: '/annonces', label: 'Annonces' },
 ]

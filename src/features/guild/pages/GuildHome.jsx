@@ -1,11 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, ArrowRight } from 'lucide-react'
+import { ArrowUpRight, ArrowRight, Lock } from 'lucide-react'
 import logo from '@/assets/logo.jpg'
 import { supabase } from '@/shared/lib/supabaseClient'
 import { TOURNAMENTS } from '@/app/config'
 import { useTournamentStatus } from '@/features/tournament/useTournamentStatus'
 import { useGuildHonor } from '@/features/guild/useGuildHonor'
+import { useAccess } from '@/features/auth/useAccess'
+import SocialLinks from '@/features/guild/components/SocialLinks'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
 import { levelProgress, kindLabel, fmtDateTime } from '@/features/guild/guild'
 import { gsap, prefersReducedMotion } from '@/shared/lib/gsap'
@@ -21,6 +23,9 @@ export default function GuildHome() {
   const status = useTournamentStatus()
   const honor = useGuildHonor()
   const featured = TOURNAMENTS[0]
+  const { isMember } = useAccess()
+  const rank = useSupabaseQuery(() => supabase.from('guild_rank_history').select('rank, scope').eq('is_current', true).limit(1), []).data?.[0]
+  const TournamentCard = isMember ? Link : 'div'
   const champion = useSupabaseQuery(() => supabase.from('charo_dor_records').select('value, season, guild_members(pseudo), charo_dor_titles!inner(code)').eq('is_current', true).eq('charo_dor_titles.code', 'saison').limit(1), []).data?.[0]
   const [announcements, setAnnouncements] = useState([])
   const [memberCount, setMemberCount] = useState(null)
@@ -128,15 +133,21 @@ export default function GuildHome() {
               <span className="gh-line gh-big gh-outline"><span>CHARO</span></span>
             </h1>
             <p className="gh-lead gh-fade">
-              Une guilde qui joue pour gagner. Tournois, guerres de guilde, classement des membres et des duos : tout se passe ici.
+              Une guilde qui joue pour gagner. Tournois, guerres de guilde, titres du Charo d’Or et réalisations : tout se passe ici.
             </p>
             <div className="gh-actions gh-fade">
               <Link to="/rejoindre" className="gh-btn gh-btn-dark" data-magnetic>Rejoindre la guilde <ArrowUpRight size={18} /></Link>
               <Link to="/tournois" className="gh-btn gh-btn-ghost" data-magnetic>Voir les tournois</Link>
             </div>
 
-            {(memberCount > 0 || honor) && (
+            <div className="gh-socials gh-fade">
+              <p className="gh-social-label">Suis la guilde</p>
+              <SocialLinks />
+            </div>
+
+            {(memberCount > 0 || honor || rank) && (
               <div className="gh-stats gh-fade">
+                {rank && <div className="gh-stat"><strong>N°{rank.rank}</strong><span>au {rank.scope}</span></div>}
                 {memberCount > 0 && <div className="gh-stat"><strong data-count={memberCount}>0</strong><span>membres actifs</span></div>}
                 {honor && <div className="gh-stat"><strong data-count={honor.wins}>0</strong><span>victoires</span></div>}
                 {honor && <div className="gh-stat"><strong>{honor.level}</strong><span>niveau d’honneur</span></div>}
@@ -158,28 +169,41 @@ export default function GuildHome() {
           <p className="gh-eyebrow" data-reveal>En ce moment</p>
           <h2 className="gh-h2" data-reveal>La guilde en action.</h2>
           <div className="gh-bento">
-            <Link to={featured.to} className="gh-card gh-card-tall gh-card-dark" data-reveal>
+            <TournamentCard {...(isMember ? { to: featured.to } : {})} className="gh-card gh-card-tall gh-card-dark" data-reveal>
               <div>
                 <span className="gh-status"><i className="gh-dot" /> {status.label}</span>
                 <h3 style={{ marginTop: '1.5rem' }}>{featured.title}</h3>
                 <p style={{ maxWidth: '30rem' }}>{featured.text}</p>
                 <p style={{ marginTop: '.75rem', fontSize: '.9rem' }}>{featured.game} · {featured.format}</p>
               </div>
-              <span className="gh-more">Entrer dans le tournoi <ArrowRight size={16} /></span>
-            </Link>
+              <span className="gh-more">{isMember ? <>Entrer dans le tournoi <ArrowRight size={16} /></> : <><Lock size={15} /> Réservé aux membres</>}</span>
+            </TournamentCard>
 
-            <Link to="/guilde?tab=evenements" className="gh-card" data-reveal="1">
-              <div>
-                <span className="gh-label">Prochain rendez-vous</span>
-                {nextEvent ? (
-                  <>
-                    <h3 style={{ fontSize: '1.5rem' }}>{nextEvent.title}</h3>
-                    <p>{kindLabel(nextEvent.kind)} · {fmtDateTime(nextEvent.starts_at)}</p>
-                  </>
-                ) : <p style={{ marginTop: '.75rem' }}>Aucun événement programmé pour le moment.</p>}
-              </div>
-              <span className="gh-more">Voir le calendrier <ArrowUpRight size={16} /></span>
-            </Link>
+            {isMember ? (
+              <Link to="/guilde?tab=evenements" className="gh-card" data-reveal="1">
+                <div>
+                  <span className="gh-label">Prochain rendez-vous</span>
+                  {nextEvent ? (
+                    <>
+                      <h3 style={{ fontSize: '1.5rem' }}>{nextEvent.title}</h3>
+                      <p>{kindLabel(nextEvent.kind)} · {fmtDateTime(nextEvent.starts_at)}</p>
+                    </>
+                  ) : <p style={{ marginTop: '.75rem' }}>Aucun événement programmé pour le moment.</p>}
+                </div>
+                <span className="gh-more">Voir le calendrier <ArrowUpRight size={16} /></span>
+              </Link>
+            ) : (
+              <Link to="/realisations" className="gh-card" data-reveal="1">
+                <div>
+                  <span className="gh-label">Nos réalisations</span>
+                  {rank
+                    ? <p className="gh-bignum" style={{ color: 'var(--ink)', marginTop: '.5rem' }}>N°{rank.rank}</p>
+                    : <h3 style={{ fontSize: '1.5rem' }}>Notre palmarès</h3>}
+                  <p>{rank ? `de la guilde au ${rank.scope}` : 'Classement, victoires en GVG et distinctions.'}</p>
+                </div>
+                <span className="gh-more">Voir les réalisations <ArrowUpRight size={16} /></span>
+              </Link>
+            )}
 
             <Link to="/guilde?tab=membres" className="gh-card" data-reveal="2">
               <div>

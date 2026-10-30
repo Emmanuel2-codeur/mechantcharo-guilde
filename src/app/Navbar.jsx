@@ -5,6 +5,7 @@ import NotificationCenter from '@/features/notifications/NotificationCenter'
 import BackButton from '@/app/BackButton'
 import logo from '@/assets/logo.jpg'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useAccess } from '@/features/auth/useAccess'
 import { GUILD_LINKS, TOURNAMENT_LINKS, TOURNAMENT_BASE } from '@/app/config'
 import { signOut } from '@/shared/lib/supabaseClient'
 import { gsap, prefersReducedMotion } from '@/shared/lib/gsap'
@@ -15,6 +16,8 @@ export default function Navbar() {
   const menuRef = useRef(null)
   const { session, profile, isAdmin } = useAuth()
   const location = useLocation()
+  const { isMember } = useAccess()
+  const links = GUILD_LINKS.filter((l) => !l.members || isMember)
   const inTournament = location.pathname.startsWith(TOURNAMENT_BASE)
   const isGrouped = (l) => (l.also || []).some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`))
   const initial = (profile?.pseudo || '?').trim().charAt(0).toUpperCase()
@@ -64,11 +67,11 @@ export default function Navbar() {
           <Link to="/" className="group flex items-center gap-3">
             <span className="relative">
               <span className="absolute -inset-1 rounded-full bg-charo-gradient opacity-0 blur-md group-hover:opacity-60 transition-opacity" />
-              <img src={logo} alt="Guilde MECHANTCHARO" className="relative w-10 h-10 rounded-full object-cover ring-2 ring-charo-orange" />
+              <img src={logo} alt="Guilde MÉCHANTCHARO" className="relative w-10 h-10 rounded-full object-cover ring-2 ring-charo-orange" />
             </span>
             <span className="leading-none">
               <span className="block font-display text-[1.15rem] font-extrabold tracking-tight text-ink">
-                MECHANT<span className="text-charo-orange">CHARO</span>
+                MÉCHANT<span className="text-charo-orange">CHARO</span>
               </span>
               <span className="block mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">Guilde officielle</span>
             </span>
@@ -77,13 +80,13 @@ export default function Navbar() {
 
         {/* Navigation (pilule) */}
         <nav className="hidden xl:flex items-center gap-1 rounded-full border border-line bg-surface-soft/80 p-1">
-          {GUILD_LINKS.map((l) => (
+          {links.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === '/'}
               className={({ isActive }) =>
-                `relative rounded-full px-4 py-2 text-[13px] font-bold tracking-wide transition-all duration-200 ${
+                `relative whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-bold tracking-wide transition-all duration-200 ${
                   isActive || isGrouped(l)
                     ? 'bg-white text-charo-orange shadow-[0_2px_10px_-2px_rgba(15,23,42,0.18)]'
                     : 'text-muted hover:text-ink hover:bg-white/70'
@@ -105,9 +108,9 @@ export default function Navbar() {
           )}
           {session ? (
             <>
-              <Link to="/profil" className="flex items-center gap-2.5 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 text-sm font-semibold text-ink hover:border-charo-orange transition-colors">
+              <Link to="/profil" className="flex items-center gap-2.5 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-1.5 2xl:pr-4 text-sm font-semibold text-ink hover:border-charo-orange transition-colors">
                 <span className="w-8 h-8 rounded-full bg-charo-gradient text-white flex items-center justify-center text-sm font-extrabold">{initial}</span>
-                {profile?.pseudo || 'Mon profil'}
+                <span className="hidden 2xl:inline">{profile?.pseudo || 'Mon profil'}</span>
                 {profile?.status === 'pending' && (
                   <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">En attente</span>
                 )}
@@ -165,7 +168,7 @@ export default function Navbar() {
       {open && (
         <div ref={menuRef} className="xl:hidden absolute left-0 right-0 top-full h-[calc(100svh-80px)] overflow-y-auto border-t border-line bg-white px-5 pt-6 pb-8 shadow-2xl">
           <nav className="flex flex-col">
-            {GUILD_LINKS.map((l, i) => (
+            {links.map((l, i) => (
               <NavLink
                 key={l.to}
                 to={l.to}

@@ -11,7 +11,7 @@ src/
     rankings/     Classement de la guilde (membres + duos)
     charodor/     Charo d'Or (titres désignés par les admins)
     announcements/  annonces, commentaires, réactions
-    auth/         connexion, profil, AuthContext, AdminRoute
+    auth/         connexion, profil, AuthContext, AdminRoute, useAccess + RequireMember (visiteur / membre), éditeur de profil de guilde
     notifications/  centre de notifications
     admin/        panneau d'administration (pages/, sections/, components/)
   shared/
@@ -32,11 +32,11 @@ supabase/functions/  send-push, send-security-alert, admin-assistant, send-appli
 6. **Audit** : une seule fonction (`fn_audit_guild` + `audit_label`, `sql/guild/00_audit.sql`). Pour une nouvelle table : une ligne dans `audit_label` + un trigger.
 
 ## Navigation
-- Publique (6) : Accueil · Tournois · La guilde · Classement · Charo d'Or · Annonces.
+- Publique : Accueil · Tournois · La guilde · Réalisations · Charo d'Or · Annonces (+ **Classement** pour les membres approuvés).
 - Tournoi (6) : Présentation · Matchs (+ Historique) · Poules · Phase finale (Bracket + 32 finalistes) · Classement · Règlement.
-- Admin : groupes Général · Tournoi · Guilde (7 sous-onglets, `?tab=guilde&sub=…`) · Communication · Système.
+- Admin : groupes Général · Tournoi · Guilde (9 sous-onglets, `?tab=guilde&sub=…`) · Communication · Système. Un fichier par section dans `features/admin/sections/`.
 
 ## Reste à faire (voir docs/GUILD_SETUP.md)
-- Découper `features/admin/pages/Admin.jsx` (≈1000 lignes) en un fichier par section avec une URL par section.
+- Restreindre en base (RLS) la lecture des tables du tournoi à `is_member()`, une fois le tournoi terminé ou après sauvegarde.
 - Migrer les pages tournoi historiques vers `useSupabaseQuery` / `PageHeader`.
 - Tables `tournaments` + inscriptions par tournoi (après la fin de la Bataille des Charos).

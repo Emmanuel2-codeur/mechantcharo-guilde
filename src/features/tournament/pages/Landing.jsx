@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Swords, PlayCircle, Users, LayoutGrid, Target, Crosshair, Trophy,
-  ShieldCheck, ListOrdered, Radio, Medal, ArrowRight, Award, Skull, Crown, Megaphone,
-} from 'lucide-react'
+  Swords, Users, LayoutGrid, Target, Crosshair, Trophy,
+  ShieldCheck, ListOrdered, Radio, Medal, ArrowRight, Award, Skull, Crown, Megaphone } from 'lucide-react'
 import StatsBar from '@/features/tournament/components/StatsBar'
 import logo from '@/assets/logo.jpg'
 import { supabase } from '@/shared/lib/supabaseClient'
@@ -14,24 +13,20 @@ const formatCards = [
   {
     icon: Users,
     title: 'Phase de Qualifications',
-    text: 'Les joueurs approuvés sont répartis dans les groupes A à J. Les demandes peuvent dépasser 40, puis la qualification retient les meilleurs profils selon le règlement.',
-  },
+    text: 'Les joueurs approuvés sont répartis dans les groupes A à J. Les demandes peuvent dépasser 40, puis la qualification retient les meilleurs profils selon le règlement.' },
   {
     icon: ListOrdered,
     title: 'Système de Repêchage',
-    text: "Les matchs de poules alimentent le classement. L’administration choisit ensuite manuellement les 32 joueurs qui accèdent à la phase finale.",
-  },
+    text: "Les matchs de poules alimentent le classement. L’administration choisit ensuite manuellement les 32 joueurs qui accèdent à la phase finale." },
   {
     icon: Trophy,
     title: 'Phases Finales',
-    text: 'Arbre à élimination directe pour les 32 finalistes choisis par l’administration : 16èmes, huitièmes, quarts, demies et grande finale.',
-  },
+    text: 'Arbre à élimination directe pour les 32 finalistes choisis par l’administration : 16èmes, huitièmes, quarts, demies et grande finale.' },
   {
     icon: Crosshair,
     title: 'Règles Aller / Retour',
     highlight: true,
-    text: 'Match Aller en "One Tap" (headshot only), match Retour en "Spam" (bodyshot). Deux styles, un seul vainqueur.',
-  },
+    text: 'Match Aller en "One Tap" (headshot only), match Retour en "Spam" (bodyshot). Deux styles, un seul vainqueur.' },
 ]
 
 const processSteps = [
@@ -53,8 +48,7 @@ const prizeTiers = [
       'Casque Gaming avec Micro',
       'Refroidisseur de Téléphone Gaming',
       '+ 200 diamants',
-    ],
-  },
+    ] },
   {
     rank: 'Top 2',
     title: 'Vice-champion',
@@ -64,8 +58,7 @@ const prizeTiers = [
     perks: [
       'Casque Gaming avec Micro',
       '+ 200 diamants',
-    ],
-  },
+    ] },
   {
     rank: 'Top 3',
     title: 'Troisième place',
@@ -75,8 +68,7 @@ const prizeTiers = [
     perks: [
       '450 Diamants Free Fire (ABONNEMENT HEBDOMADAIRE)',
       '+ 200 diamants',
-    ],
-  },
+    ] },
 ]
 
 export default function Landing() {

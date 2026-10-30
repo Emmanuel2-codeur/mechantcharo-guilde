@@ -21,6 +21,8 @@ begin
         || coalesce((select pseudo from public.guild_members where id = (p_row ->> 'member_a')::uuid), '?') || ' & '
         || coalesce((select pseudo from public.guild_members where id = (p_row ->> 'member_b')::uuid), '?')
         || ' (' || (p_row ->> 'points') || ' pts)'
+    when 'guild_rank_history' then 'N°' || (p_row ->> 'rank') || ' ' || coalesce(p_row ->> 'scope', '') || coalesce(' — ' || nullif(p_row ->> 'period_label', ''), '')
+    when 'guild_achievements' then (p_row ->> 'kind') || ' : ' || (p_row ->> 'title')
     when 'charo_dor_records'  then coalesce((select label from public.charo_dor_titles where id = (p_row ->> 'title_id')::uuid), 'Charo d''Or')
         || ' : ' || v_member || coalesce(' (' || nullif(p_row ->> 'value', '') || ')', '')
     else v_member || ' : ' || coalesce(p_row ->> 'status', p_row ->> 'position', 'badge')

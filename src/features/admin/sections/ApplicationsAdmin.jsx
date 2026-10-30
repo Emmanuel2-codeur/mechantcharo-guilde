@@ -55,7 +55,6 @@ export default function ApplicationsAdmin({ run, setError, setMessage, onChanged
           </div>
           <dl className="text-sm text-muted space-y-1 mb-3">
             {a.game_rank && <div><dt className="inline font-semibold text-ink">Rang : </dt><dd className="inline">{a.game_rank}</dd></div>}
-            {a.availability && <div><dt className="inline font-semibold text-ink">Disponibilités : </dt><dd className="inline">{a.availability}</dd></div>}
             {a.message && <p className="whitespace-pre-wrap">{a.message}</p>}
             <p className="text-xs">Reçue le {new Date(a.created_at).toLocaleDateString('fr-FR')}</p>
           </dl>
