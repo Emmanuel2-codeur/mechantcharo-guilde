@@ -128,7 +128,7 @@ table td { color: #1f2937; }
   @apply block text-[10px] font-extrabold uppercase tracking-[0.28em] text-charo-orange mb-1;
 }
 .guild-leader strong {
-  @apply block font-display text-2xl md:text-3xl tracking-wide text-ink-900;
+  @apply block font-display text-2xl md:text-3xl tracking-wide text-black;
 }
 .guild-leader em {
   @apply block mt-1 text-sm font-semibold tracking-[0.16em] text-ink-600 not-italic;
