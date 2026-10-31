@@ -71,7 +71,7 @@ export default function Navbar() {
             </span>
             <span className="leading-none">
               <span className="block font-display text-[1.15rem] font-extrabold tracking-tight text-ink">
-                MÉCHANT<span className="text-charo-orange">CHARO</span>
+                MECHANT<span className="text-charo-orange">CHARO</span>
               </span>
               <span className="block mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">Guilde officielle</span>
             </span>

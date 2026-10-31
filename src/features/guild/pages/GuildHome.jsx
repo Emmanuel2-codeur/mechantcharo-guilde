@@ -129,7 +129,7 @@ export default function GuildHome() {
             <span className="gh-chip"><i className="gh-dot" /> Guilde officielle · Free Fire</span>
             <h1 className="gh-title">
               <span className="gh-line gh-hello"><span>Bienvenue chez les</span></span>
-              <span className="gh-line gh-big"><span>MÉCHANT</span></span>
+              <span className="gh-line gh-big"><span>MÉCHANTS</span></span>
               <span className="gh-line gh-big gh-outline"><span>CHARO</span></span>
             </h1>
             <p className="gh-lead gh-fade">
