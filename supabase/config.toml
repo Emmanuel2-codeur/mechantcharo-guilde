@@ -6,3 +6,6 @@ verify_jwt = true
 
 [functions.send-application-decision]
 verify_jwt = true
+
+[functions.notify-new-application]
+verify_jwt = false

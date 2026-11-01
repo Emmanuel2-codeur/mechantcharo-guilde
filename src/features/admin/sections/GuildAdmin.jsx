@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarDays, ClipboardCheck, Users, Award, Sparkles, AlertTriangle, Download, UserPlus, Swords, Crown, Flag, Trash2, Plus, Wand2 } from 'lucide-react'
+import { CalendarDays, ClipboardCheck, Users, Award, Sparkles, AlertTriangle, Download, UserPlus, Swords, Crown, Flag, ScrollText, Trash2, Plus, Wand2 } from 'lucide-react'
 import { supabase } from '@/shared/lib/supabaseClient'
 import { useAuth } from '@/features/auth/AuthContext'
 import HonorAdmin from '@/features/admin/sections/HonorAdmin'
@@ -7,11 +7,13 @@ import AssistantAdmin from '@/features/admin/sections/AssistantAdmin'
 import DuoAdmin from '@/features/admin/sections/DuoAdmin'
 import CharoDorAdmin from '@/features/admin/sections/CharoDorAdmin'
 import RealisationsAdmin from '@/features/admin/sections/RealisationsAdmin'
+import RulesAdmin from '@/features/admin/sections/RulesAdmin'
 import ApplicationsAdmin from '@/features/admin/sections/ApplicationsAdmin'
 import { GUILD_ROLES, EVENT_KINDS, ATTENDANCE, RESULTS, kindLabel, fmtDateTime } from '@/features/guild/guild'
 
 const SUBTABS = [
   { id: 'candidatures', label: 'Candidatures', icon: UserPlus },
+  { id: 'reglement', label: 'Règlement', icon: ScrollText },
   { id: 'presences', label: 'Présences', icon: ClipboardCheck },
   { id: 'evenements', label: 'Événements', icon: CalendarDays },
   { id: 'membres', label: 'Membres', icon: Users },
@@ -78,6 +80,7 @@ export default function GuildAdmin({ setMessage, setError }) {
       {sub === 'presences' && <Presences members={members} events={events} profile={profile} run={run} setMessage={setMessage} setError={setError} />}
       {sub === 'evenements' && <Events events={events} run={run} />}
       {sub === 'assistant' && <AssistantAdmin members={members} events={events} run={run} setError={setError} setMessage={setMessage} />}
+      {sub === 'reglement' && <RulesAdmin run={run} setError={setError} />}
       {sub === 'realisations' && <RealisationsAdmin run={run} setError={setError} />}
       {sub === 'charodor' && <CharoDorAdmin members={members} run={run} setError={setError} />}
       {sub === 'duos' && <DuoAdmin members={members} run={run} setError={setError} />}

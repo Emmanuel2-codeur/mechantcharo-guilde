@@ -15,7 +15,7 @@ export default function ApplicationsAdmin({ run, setError, setMessage, onChanged
 
   const load = async () => {
     const { data, error } = await supabase.from('guild_applications').select('*').order('created_at', { ascending: false }).limit(100)
-    if (error) { setError(`Candidatures : ${error.message} (sql/07_guild_applications.sql exécuté ?)`); return }
+    if (error) { setError(`Candidatures : ${error.message} (sql/guild/04 et 11 exécutés ?)`); return }
     setApps(data || [])
   }
   useEffect(() => { load() }, [])
@@ -55,6 +55,10 @@ export default function ApplicationsAdmin({ run, setError, setMessage, onChanged
           </div>
           <dl className="text-sm text-muted space-y-1 mb-3">
             {a.game_rank && <div><dt className="inline font-semibold text-ink">Rang : </dt><dd className="inline">{a.game_rank}</dd></div>}
+            {a.is_togolese !== null && a.is_togolese !== undefined && (
+              <div><dt className="inline font-semibold text-ink">Origine : </dt><dd className="inline">{a.is_togolese ? `Togolais · éwé : ${a.speaks_ewe ? 'oui' : 'non'}` : `Pays : ${a.country || '—'}`}</dd></div>
+            )}
+            {a.rules_accepted_at && <div><dt className="inline font-semibold text-ink">Règlement : </dt><dd className="inline">accepté (v{a.rules_version ?? '?'}) le {new Date(a.rules_accepted_at).toLocaleDateString('fr-FR')}</dd></div>}
             {a.message && <p className="whitespace-pre-wrap">{a.message}</p>}
             <p className="text-xs">Reçue le {new Date(a.created_at).toLocaleDateString('fr-FR')}</p>
           </dl>

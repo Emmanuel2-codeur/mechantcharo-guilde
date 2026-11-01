@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, ArrowRight, Lock } from 'lucide-react'
 import logo from '@/assets/logo.jpg'
+import rankBadge from '@/assets/togo-rank-1.jpg'
 import { supabase } from '@/shared/lib/supabaseClient'
 import { TOURNAMENTS } from '@/app/config'
 import { useTournamentStatus } from '@/features/tournament/useTournamentStatus'
@@ -23,9 +24,11 @@ export default function GuildHome() {
   const status = useTournamentStatus()
   const honor = useGuildHonor()
   const featured = TOURNAMENTS[0]
-  const { isMember } = useAccess()
+  const { isMember, isLoggedIn } = useAccess()
   const rank = useSupabaseQuery(() => supabase.from('guild_rank_history').select('rank, scope').eq('is_current', true).limit(1), []).data?.[0]
   const TournamentCard = isMember ? Link : 'div'
+  // Le badge « 1 · TOGO » s'affiche tant que la guilde est n°1 au Togo (ou si le classement n'est pas encore saisi).
+  const showRankBadge = !rank || (rank.rank === 1 && rank.scope === 'Togo')
   const champion = useSupabaseQuery(() => supabase.from('charo_dor_records').select('value, season, guild_members(pseudo), charo_dor_titles!inner(code)').eq('is_current', true).eq('charo_dor_titles.code', 'saison').limit(1), []).data?.[0]
   const [announcements, setAnnouncements] = useState([])
   const [memberCount, setMemberCount] = useState(null)
@@ -55,6 +58,11 @@ export default function GuildHome() {
         .from(root.querySelectorAll('.gh-line > span'), { yPercent: 115, duration: 1.1, stagger: 0.12 }, 0.3)
         .from(root.querySelectorAll('.gh-fade'), { opacity: 0, y: 24, duration: 0.8, stagger: 0.1 }, 0.9)
 
+      const badge = q('.gh-rankbadge')
+      if (badge) {
+        gsap.from(badge, { scale: 0.5, opacity: 0, rotate: -8, duration: 1.2, delay: 1.1, ease: 'back.out(1.7)' })
+        gsap.to(badge, { y: -10, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2.4 })
+      }
       gsap.to(q('.gh-logo-float'), { y: -14, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
       gsap.to(q('.gh-logo-scroll'), {
         yPercent: 10, ease: 'none',
@@ -124,6 +132,12 @@ export default function GuildHome() {
           </div></div></div>
         </div>
 
+        {showRankBadge && (
+          <Link to="/realisations" className="gh-rankbadge" aria-label="Guilde n°1 au Togo : voir nos réalisations">
+            <img src={rankBadge} alt="Badge : n°1 au Togo" width="563" height="324" />
+          </Link>
+        )}
+
         <div className="gh-content">
           <div className="gh-inner">
             <span className="gh-chip"><i className="gh-dot" /> Guilde officielle · Free Fire</span>
@@ -136,7 +150,8 @@ export default function GuildHome() {
               Une guilde qui joue pour gagner. Tournois, guerres de guilde, titres du Charo d’Or et réalisations : tout se passe ici.
             </p>
             <div className="gh-actions gh-fade">
-              <Link to="/rejoindre" className="gh-btn gh-btn-dark" data-magnetic>Rejoindre la guilde <ArrowUpRight size={18} /></Link>
+              {!isLoggedIn && <Link to="/rejoindre" className="gh-btn gh-btn-dark" data-magnetic>Rejoindre la guilde <ArrowUpRight size={18} /></Link>}
+              {isLoggedIn && !isMember && <Link to="/profil" className="gh-btn gh-btn-dark" data-magnetic>Ma candidature <ArrowUpRight size={18} /></Link>}
               <Link to="/tournois" className="gh-btn gh-btn-ghost" data-magnetic>Voir les tournois</Link>
             </div>
 
@@ -196,9 +211,11 @@ export default function GuildHome() {
               <Link to="/realisations" className="gh-card" data-reveal="1">
                 <div>
                   <span className="gh-label">Nos réalisations</span>
-                  {rank
-                    ? <p className="gh-bignum" style={{ color: 'var(--ink)', marginTop: '.5rem' }}>N°{rank.rank}</p>
-                    : <h3 style={{ fontSize: '1.5rem' }}>Notre palmarès</h3>}
+                  {showRankBadge
+                    ? <img className="gh-cardbadge" src={rankBadge} alt="Badge : n°1 au Togo" />
+                    : rank
+                      ? <p className="gh-bignum" style={{ color: 'var(--ink)', marginTop: '.5rem' }}>N°{rank.rank}</p>
+                      : <h3 style={{ fontSize: '1.5rem' }}>Notre palmarès</h3>}
                   <p>{rank ? `de la guilde au ${rank.scope}` : 'Classement, victoires en GVG et distinctions.'}</p>
                 </div>
                 <span className="gh-more">Voir les réalisations <ArrowUpRight size={16} /></span>
@@ -276,6 +293,7 @@ export default function GuildHome() {
       )}
 
       {/* ───── Appel final ───── */}
+      {!isLoggedIn && (
       <section className="gh-section" style={{ paddingTop: announcements.length ? 0 : undefined }}>
         <div className="gh-wrap">
           <div className="gh-cta" data-reveal>
@@ -285,6 +303,7 @@ export default function GuildHome() {
           </div>
         </div>
       </section>
+      )}
 
     </div>
   )

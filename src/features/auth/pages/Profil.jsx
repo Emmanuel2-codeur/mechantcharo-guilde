@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, LoaderCircle, LogOut, ShieldCheck, UserRound } from 'lucide-react'
 import MemberProfileEditor from '@/features/auth/MemberProfileEditor'
+import GuildApplicationCard from '@/features/auth/GuildApplicationCard'
+import { peekNext, clearNext } from '@/features/auth/redirect'
 import { signOut, supabase } from '@/shared/lib/supabaseClient'
 
 export default function Profil() {
+  const navigate = useNavigate()
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
   const [pseudo, setPseudo] = useState('')
@@ -28,6 +32,10 @@ export default function Profil() {
 
       const currentSession = sessionData.session
       if (mounted) setSession(currentSession)
+
+      // Retour vers la page demandée avant la connexion (ex. un tournoi)
+      const next = peekNext()
+      if (next) { clearNext(); navigate(next, { replace: true }); return }
 
       const { data, error: profileError } = await supabase
         .from('profiles')
@@ -123,7 +131,7 @@ export default function Profil() {
 
           {!loading && session && profile && (
             <div className="space-y-6">
-              {profile?.status === 'approved' && <MemberProfileEditor />}
+              {profile?.status === 'approved' ? <MemberProfileEditor /> : <GuildApplicationCard />}
               <form onSubmit={saveProfile} className="card p-6 md:p-8">
                 <label className="block">
                   <span className="block text-sm font-bold text-ink mb-2">Ton pseudo</span>

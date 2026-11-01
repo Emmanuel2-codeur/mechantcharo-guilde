@@ -118,7 +118,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/connexion" className="rounded-full px-4 py-2.5 text-sm font-bold text-ink-950 hover:text-charo-orange transition-colors">Se connecter</Link>
-              <Link to="/rejoindre" className="inline-flex items-center gap-1.5 rounded-full bg-charo-gradient px-5 py-2.5 text-sm font-bold text-white shadow-glow hover:brightness-110 active:scale-[0.97] transition-all">
+              <Link to="/" className="inline-flex items-center gap-1.5 rounded-full bg-charo-gradient px-5 py-2.5 text-sm font-bold text-white shadow-glow hover:brightness-110 active:scale-[0.97] transition-all">
                 Rejoindre <ArrowUpRight size={16} />
               </Link>
             </>

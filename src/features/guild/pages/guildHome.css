@@ -111,3 +111,9 @@
 /* Réseaux sociaux de l'accueil */
 .gh-socials { margin-top: 2rem; }
 .gh-social-label { margin-bottom: .75rem; font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+
+/* Badge « 1 · TOGO » sur l'accueil */
+.gh-rankbadge { position: absolute; z-index: 3; right: 4%; top: 52%; width: clamp(130px, 15vw, 210px); overflow: hidden; border: 3px solid #fff; border-radius: 22px; box-shadow: 0 26px 50px -18px rgba(11,15,26,.55), 0 0 0 1px rgba(11,15,26,.06); }
+.gh-rankbadge img { display: block; width: 100%; height: auto; }
+.gh-cardbadge { display: block; width: 150px; margin: .8rem 0; border-radius: 16px; box-shadow: 0 14px 30px -14px rgba(11,15,26,.5); }
+@media (max-width: 899px) { .gh-rankbadge { right: 5%; top: auto; bottom: 7%; width: 112px; border-width: 2px; border-radius: 16px; } }

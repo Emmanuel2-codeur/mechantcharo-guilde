@@ -3,13 +3,17 @@ import { Trophy, Swords, Award, History } from 'lucide-react'
 import { supabase } from '@/shared/lib/supabaseClient'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
 import { useReveal, useCountUp } from '@/shared/hooks/useGsapEffects'
-import { Page, PageHeader, Card, EmptyState, QueryState } from '@/shared/ui'
+import { useState } from 'react'
+import { Page, PageHeader, Card, EmptyState, QueryState, Lightbox } from '@/shared/ui'
+import rankBadge from '@/assets/togo-rank-1.jpg'
+import honneursEnJeu from '@/assets/honneurs-en-jeu.jpg'
 
 const fmt = (d) => (d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : null)
 
 /** Page publique : classement de la guilde (actuel et passé), guildes vaincues en GVG, distinctions. */
 export default function Realisations() {
   const ref = useRef(null)
+  const [zoom, setZoom] = useState(null)
   const ranks = useSupabaseQuery(() => supabase.from('guild_rank_history').select('*').order('is_current', { ascending: false }).order('started_on', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }), [])
   const items = useSupabaseQuery(() => supabase.from('guild_achievements').select('*').order('achieved_on', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }), [])
   useReveal(ref, [ranks.loading, items.loading])
@@ -17,6 +21,7 @@ export default function Realisations() {
 
   const current = (ranks.data || []).find((r) => r.is_current)
   const past = (ranks.data || []).filter((r) => !r.is_current)
+  const showBadge = !current || (current.rank === 1 && current.scope === 'Togo')
   const wins = (items.data || []).filter((a) => a.kind === 'gvg_win')
   const honors = (items.data || []).filter((a) => a.kind !== 'gvg_win')
 
@@ -40,9 +45,16 @@ export default function Realisations() {
                 </>
               ) : <p className="font-display text-3xl text-white/50">Classement bientôt communiqué.</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="rounded-2xl bg-white/10 px-6 py-5"><p className="font-display text-4xl"><span data-count={wins.length}>0</span></p><p className="text-xs text-white/60">guildes vaincues</p></div>
-              <div className="rounded-2xl bg-white/10 px-6 py-5"><p className="font-display text-4xl"><span data-count={honors.length}>0</span></p><p className="text-xs text-white/60">distinctions</p></div>
+            <div className="flex flex-col items-center gap-5">
+              {showBadge && (
+                <button type="button" onClick={() => setZoom({ src: rankBadge, alt: 'Badge : guilde n°1 au Togo' })} className="cursor-zoom-in overflow-hidden rounded-2xl border-2 border-white/20 shadow-2xl transition-transform hover:scale-[1.03]" aria-label="Agrandir le badge n°1 au Togo">
+                  <img src={rankBadge} alt="Badge : guilde n°1 au Togo" className="block w-52 md:w-60" />
+                </button>
+              )}
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="rounded-2xl bg-white/10 px-6 py-5"><p className="font-display text-4xl"><span data-count={wins.length}>0</span></p><p className="text-xs text-white/60">guildes vaincues</p></div>
+                <div className="rounded-2xl bg-white/10 px-6 py-5"><p className="font-display text-4xl"><span data-count={honors.length}>0</span></p><p className="text-xs text-white/60">distinctions</p></div>
+              </div>
             </div>
           </div>
         </section>
@@ -82,6 +94,24 @@ export default function Realisations() {
           </section>
         )}
 
+        {/* Honneurs en jeu */}
+        <section className="mb-12">
+          <h2 data-reveal className="mb-6 flex items-center gap-3 font-display text-3xl"><Trophy className="text-charo-orange" size={26} /> Les honneurs de MÉCHANTCHARO</h2>
+          <Card pad="p-4 md:p-6" data-reveal className="grid items-center gap-6 md:grid-cols-[1.4fr_1fr]">
+            <button type="button" onClick={() => setZoom({ src: honneursEnJeu, alt: 'Capture du jeu : les honneurs de MECHANTCHARO, titres de gloire de guilde n°65 (2026.06) et n°2 (2026.09) au Togo' })} className="cursor-zoom-in overflow-hidden rounded-2xl" aria-label="Agrandir la capture des honneurs">
+              <img src={honneursEnJeu} alt="Capture du jeu : les honneurs de MECHANTCHARO, titres de gloire de guilde n°65 (2026.06) et n°2 (2026.09) au Togo" className="block w-full" loading="lazy" />
+            </button>
+            <div>
+              <p className="mb-3 text-sm text-muted">Quand la guilde participe à la Guerre de guildes et obtient un titre de gloire à la fin de la saison, il est enregistré dans le jeu. Voici nos titres :</p>
+              <ul className="space-y-2 font-bold">
+                <li className="flex items-center justify-between rounded-xl bg-surface-soft px-4 py-3"><span>N°2 au Togo</span><span className="text-sm font-semibold text-muted">2026.09</span></li>
+                <li className="flex items-center justify-between rounded-xl bg-surface-soft px-4 py-3"><span>N°65 au Togo</span><span className="text-sm font-semibold text-muted">2026.06</span></li>
+              </ul>
+              <p className="mt-3 text-xs text-muted">Clique sur l’image pour l’agrandir.</p>
+            </div>
+          </Card>
+        </section>
+
         {/* Classements passés */}
         <section>
           <h2 data-reveal className="mb-6 flex items-center gap-3 font-display text-3xl"><History className="text-charo-orange" size={26} /> Classements passés</h2>
@@ -103,6 +133,7 @@ export default function Realisations() {
           )}
         </section>
       </Page>
+      <Lightbox src={zoom?.src} alt={zoom?.alt} onClose={() => setZoom(null)} />
     </div>
   )
 }

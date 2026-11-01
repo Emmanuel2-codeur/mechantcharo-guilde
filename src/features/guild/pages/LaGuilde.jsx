@@ -13,7 +13,7 @@ const TABS = [{ value: 'membres', label: 'Membres' }, { value: 'evenements', lab
 /** « La guilde » : les membres et le calendrier au même endroit (l'onglet est dans l'URL : ?tab=evenements). */
 export default function LaGuilde() {
   const ref = useRef(null)
-  const { isMember } = useAccess()
+  const { isMember, isLoggedIn } = useAccess()
   const [params, setParams] = useSearchParams()
   const tab = TABS.some((t) => t.value === params.get('tab')) ? params.get('tab') : 'membres'
   useReveal(ref, [tab])
@@ -25,7 +25,7 @@ export default function LaGuilde() {
           eyebrow="La famille"
           title="La guilde"
           lead="Les joueurs acceptés par les admins forment la guilde. Découvre les membres et leurs profils ; le calendrier des guerres est réservé aux membres."
-          actions={<Button to="/rejoindre" icon={UserPlus}>Rejoindre la guilde</Button>}
+          actions={!isLoggedIn ? <Button to="/rejoindre" icon={UserPlus}>Rejoindre la guilde</Button> : undefined}
         />
         <Tabs className="mb-8" items={TABS} value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })} />
         {tab === 'membres' ? <MembersView /> : isMember ? <EventsView /> : <LockedNotice inline what="Le calendrier des guerres et événements" />}

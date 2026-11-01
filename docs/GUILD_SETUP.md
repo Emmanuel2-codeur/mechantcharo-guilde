@@ -16,10 +16,12 @@ Le schéma du tournoi d'origine est dans `sql/01_schema.sql` à `03_*`. La vie d
 | `08_merge_member_rankings.sql` | fusionne l'ancien classement saisi à la main dans le profil du membre |
 | `09_access_control.sql` | accès visiteurs / membres (`is_member()`), classements réservés aux membres, correction des badges |
 | `10_profiles_achievements.sql` | profils personnalisés (photo, présentation, distinctions, guildes), réalisations, Charo d'Or externe |
+| `11_applications_v2.sql` | candidature en 3 étapes (togolais, éwé, pays), règlement de la guilde versionné et accepté, candidature liée au compte |
+| `optional_seed_known_ranks.sql` | (optionnel) enregistre les titres vus en jeu : N°65 (2026.06), N°2 (2026.09) et le classement actuel N°1 |
 | `ALL_IN_ONE.sql` | tout ce qui précède, dans l'ordre (nouvelle installation) |
 
 **Déjà installé avant la restructuration ?** (anciens fichiers 04 à 09) Exécute seulement, dans l'ordre :
-`00_audit.sql`, `07_charo_dor.sql`, `08_merge_member_rankings.sql`, `09_access_control.sql`, puis `10_profiles_achievements.sql`. Les autres sont déjà en place.
+`00_audit.sql`, `07_charo_dor.sql`, `08_merge_member_rankings.sql`, `09_access_control.sql`, `10_profiles_achievements.sql`, puis `11_applications_v2.sql`. Les autres sont déjà en place.
 
 ## 2. Rappels d'événements (optionnel)
 Activer l'extension **pg_cron**, puis décommenter la ligne `cron.schedule(...)` à la fin de `03_tools_reminders_mvp.sql`.
@@ -29,6 +31,7 @@ Activer l'extension **pg_cron**, puis décommenter la ligne `cron.schedule(...)`
 supabase functions deploy admin-assistant
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 supabase functions deploy send-application-decision
+supabase functions deploy notify-new-application --no-verify-jwt   # email d'alerte à chaque candidature
 supabase secrets set RESEND_API_KEY=re_... ALERT_EMAIL_FROM=guilde@tondomaine.com
 ```
 
@@ -51,3 +54,13 @@ La règle est appliquée dans l'interface (`useAccess`, `RequireMember`) **et** 
 
 ## 6. Profils des membres
 Un membre approuvé renseigne sa photo, sa présentation, ses distinctions et ses anciennes guildes dans `/profil` (« Mon profil de guilde »). La photo est envoyée dans le bucket `announcement-media` (dossier `avatars/`) ; les visiteurs peuvent l'agrandir depuis `/membre/:id`.
+
+## 7. Email d'alerte à chaque candidature
+Chaque candidature envoie un email à **mechantcharoguild@gmail.com** avec toutes les informations remplies (pseudo, ID, email, rang, origine, pays, règlement accepté, présentation), en plus de son apparition dans Admin, Guilde, Candidatures.
+- Fonction : `supabase/functions/notify-new-application` (déploiement avec `--no-verify-jwt`, car le candidat n'est pas forcément connecté).
+- Secrets : `RESEND_API_KEY` et `ALERT_EMAIL_FROM` (obligatoires pour l'envoi) ; `NOTIFY_EMAIL` pour changer le destinataire ; `SITE_URL` pour ajouter le bouton « Ouvrir les candidatures ».
+- Sans configuration, la candidature est quand même enregistrée et visible chez les admins ; seul l'email n'est pas envoyé.
+- Un seul email par candidature (colonne `notified_at`), et seulement dans les 15 minutes suivant l'envoi.
+
+## 8. Rester connecté
+La session est conservée dans le navigateur (case « Rester connecté sur cet appareil », cochée par défaut) et l'email saisi est mémorisé. Si une session ne tient pas : navigation privée, Safari iPhone (données vidées après ~7 jours), lien email ouvert dans un autre navigateur, ou « Redirect URLs » mal réglées dans Supabase (Authentication, URL Configuration).

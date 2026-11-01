@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { Mail, ShieldCheck, ChevronDown, Info } from 'lucide-react'
 import logo from '@/assets/logo.jpg'
-import { signInWithEmail, signInWithGoogle } from '@/shared/lib/supabaseClient'
+import { signInWithEmail, signInWithGoogle, getRememberSession, setRememberSession, getLastEmail, setLastEmail } from '@/shared/lib/supabaseClient'
+import { setNext, peekNext, clearNext } from '@/features/auth/redirect'
 import { useAuth } from '@/features/auth/AuthContext'
 
 function GoogleGlyph() {
@@ -18,21 +19,28 @@ function GoogleGlyph() {
 
 export default function Login() {
   const { session, loading: authLoading } = useAuth()
-  const [showEmail, setShowEmail] = useState(false)
-  const [email, setEmail] = useState('')
+  const [params] = useSearchParams()
+  const [email, setEmail] = useState(getLastEmail)
+  const [showEmail, setShowEmail] = useState(() => !!getLastEmail())
+  const [remember, setRemember] = useState(getRememberSession)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [googleLoading, setGoogleLoading] = useState(false)
 
+  // Page demandée avant la connexion (?next=/chemin) : on y revient une fois connecté.
+  useEffect(() => { const n = params.get('next'); if (n) setNext(n) }, [params])
+  useEffect(() => () => { if (session) clearNext() }, [session])
+
   // Déjà connecté ? Inutile de revoir l'écran de connexion.
   if (!authLoading && session) {
-    return <Navigate to="/profil" replace />
+    return <Navigate to={peekNext() || '/profil'} replace />
   }
 
   const handleGoogle = async () => {
     setGoogleLoading(true)
     setError('')
+    setRememberSession(remember)
     const { error: authError } = await signInWithGoogle()
     if (authError) {
       setError(authError.message)
@@ -46,6 +54,8 @@ export default function Login() {
     setError('')
     setSent(false)
     setSending(true)
+    setRememberSession(remember)
+    setLastEmail(email.trim())
 
     const { error: authError } = await signInWithEmail(email)
 
@@ -98,6 +108,11 @@ export default function Login() {
             <GoogleGlyph />
             {googleLoading ? 'Redirection vers Google…' : 'Continuer avec Google'}
           </button>
+
+          <label className="mt-4 flex cursor-pointer items-center justify-center gap-2.5 text-sm text-muted">
+            <input type="checkbox" className="h-4 w-4 accent-[#ff5a1f]" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+            Rester connecté sur cet appareil
+          </label>
 
           <div className="mt-6">
             <button
