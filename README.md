@@ -37,8 +37,8 @@ npm run dev
    - le seed des 10 groupes A → J
 3. Dans **Authentication → Providers**, activer **Google OAuth** (client ID / secret
    Google Cloud requis — voir la doc Supabase).
-4. `schema.sql` élève déjà automatiquement **eadande2@gmail.com** et
-   **mechantcharoguilde@gmail.com** en `role='admin'` + `status='approved'`
+4. `schema.sql` élève déjà automatiquement **admin1@example.com** et
+   **admin2@example.com** en `role='admin'` + `status='approved'`
    dès leur première connexion Google — pas besoin de validation manuelle.
    Un admin reste aussi un joueur normal : même profil, il peut renseigner
    un pseudo, rejoindre un groupe et apparaître au classement comme tout

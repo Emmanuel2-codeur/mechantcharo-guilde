@@ -1,11 +1,10 @@
-import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { Mail, ShieldCheck, ChevronDown, Info } from 'lucide-react'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import logo from '../assets/logo.jpg'
-import { signInWithEmail, signInWithGoogle } from '../lib/supabaseClient'
-import { useAuth } from '../lib/AuthContext'
+import { useEffect, useState } from 'react'
+import { Navigate, useSearchParams } from 'react-router-dom'
+import { Mail, ChevronDown } from 'lucide-react'
+import logo from '@/assets/logo.jpg'
+import { signInWithEmail, signInWithGoogle, getEmailAccountProviders, getRememberSession, setRememberSession, getLastEmail, setLastEmail } from '@/shared/lib/supabaseClient'
+import { setNext, peekNext, clearNext } from '@/features/auth/redirect'
+import { useAuth } from '@/features/auth/AuthContext'
 
 function GoogleGlyph() {
   return (
@@ -20,21 +19,29 @@ function GoogleGlyph() {
 
 export default function Login() {
   const { session, loading: authLoading } = useAuth()
-  const [showEmail, setShowEmail] = useState(false)
-  const [email, setEmail] = useState('')
+  const [params] = useSearchParams()
+  const [email, setEmail] = useState(getLastEmail)
+  const [showEmail, setShowEmail] = useState(() => !!getLastEmail())
+  const [remember, setRemember] = useState(getRememberSession)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  // Page demandée avant la connexion (?next=/chemin) : on y revient une fois connecté.
+  useEffect(() => { const n = params.get('next'); if (n) setNext(n) }, [params])
+  useEffect(() => () => { if (session) clearNext() }, [session])
 
   // Déjà connecté ? Inutile de revoir l'écran de connexion.
   if (!authLoading && session) {
-    return <Navigate to="/profil" replace />
+    return <Navigate to={peekNext() || '/profil'} replace />
   }
 
   const handleGoogle = async () => {
     setGoogleLoading(true)
     setError('')
+    setRememberSession(remember)
     const { error: authError } = await signInWithGoogle()
     if (authError) {
       setError(authError.message)
@@ -46,8 +53,21 @@ export default function Login() {
   const handleEmailSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setInfo('')
     setSent(false)
     setSending(true)
+    setRememberSession(remember)
+    setLastEmail(email.trim())
+
+    // Cet email est-il déjà lié à un compte ? On le dit clairement au lieu de laisser croire à une création.
+    const providers = await getEmailAccountProviders(email)
+    if (providers.length > 0) {
+      const googleOnly = providers.includes('google') && !providers.includes('email')
+      setInfo(googleOnly
+        ? 'Cet email est déjà lié à un compte Google. Utilise « Continuer avec Google » pour te connecter.'
+        : 'Cet email est déjà lié à un compte. Le lien envoyé te reconnectera à ce compte.')
+      if (googleOnly) { setSending(false); return }
+    }
 
     const { error: authError } = await signInWithEmail(email)
 
@@ -61,8 +81,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar />
+    <div className="flex-1 flex flex-col bg-white">
 
       <section className="flex-1 flex items-center justify-center py-16 bg-radial-glow">
         <div className="card p-9 md:p-12 max-w-md w-full mx-5">
@@ -74,21 +93,12 @@ export default function Login() {
 
           <div className="text-center">
             <span className="eyebrow mb-4">Connexion joueur</span>
-            <h1 className="font-display text-3xl mb-2 text-ink-950">
-              Rejoindre la bataille
+            <h1 className="font-display text-3xl mb-2 text-ink">
+              Rejoindre la guilde
             </h1>
-            <p className="text-ink-600 text-sm mb-4 leading-relaxed">
+            <p className="text-muted text-sm mb-8 leading-relaxed">
               Connecte-toi avec ton compte Google. C'est instantané, et ton
               accès sera ensuite validé par l'administration de la guilde.
-            </p>
-          </div>
-
-          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-charo-orange/25 bg-charo-orange/5 p-3.5 text-left">
-            <Info size={15} className="text-charo-orange shrink-0 mt-0.5" />
-            <p className="text-xs text-ink-600 leading-relaxed">
-              Le tournoi est déjà en cours. Les nouvelles demandes restent
-              possibles mais sont soumises à validation selon les places
-              encore disponibles dans les groupes.
             </p>
           </div>
 
@@ -96,17 +106,22 @@ export default function Login() {
             type="button"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full inline-flex items-center justify-center gap-3 rounded-xl border border-ink-700 bg-white px-6 py-3.5 font-bold text-ink-950 shadow-card hover:border-ink-950/20 hover:shadow-card-lg active:scale-[0.98] transition-all disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-3 rounded-xl border border-line bg-white px-6 py-3.5 font-bold text-ink shadow-card hover:border-ink/20 hover:shadow-card-lg active:scale-[0.98] transition-all disabled:opacity-60"
           >
             <GoogleGlyph />
             {googleLoading ? 'Redirection vers Google…' : 'Continuer avec Google'}
           </button>
 
+          <label className="mt-4 flex cursor-pointer items-center justify-center gap-2.5 text-sm text-muted">
+            <input type="checkbox" className="h-4 w-4 accent-[#ff5a1f]" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+            Rester connecté sur cet appareil
+          </label>
+
           <div className="mt-6">
             <button
               type="button"
               onClick={() => setShowEmail((v) => !v)}
-              className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-ink-600 hover:text-ink-950 transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-muted hover:text-ink transition-colors"
             >
               Continuer avec mon email à la place
               <ChevronDown size={14} className={`transition-transform ${showEmail ? 'rotate-180' : ''}`} />
@@ -115,18 +130,18 @@ export default function Login() {
             {showEmail && (
               <form onSubmit={handleEmailSubmit} className="mt-5 space-y-4">
                 <label className="block text-left">
-                  <span className="block text-sm font-semibold text-ink-950 mb-2">
+                  <span className="block text-sm font-semibold text-ink mb-2">
                     Adresse email
                   </span>
                   <div className="relative">
-                    <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-600" />
+                    <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder="joueur@email.com"
-                      className="w-full rounded-xl border border-ink-700 pl-10 pr-4 py-3.5 outline-none focus:border-charo-orange"
+                      className="w-full rounded-xl border border-line pl-10 pr-4 py-3.5 outline-none focus:border-charo-orange"
                     />
                   </div>
                 </label>
@@ -145,19 +160,20 @@ export default function Login() {
             </div>
           )}
 
+          {info && (
+            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              {info}
+            </div>
+          )}
+
           {error && (
             <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {error}
             </div>
           )}
-
-          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-ink-600">
-            <ShieldCheck size={13} /> Authentification sécurisée via Supabase Auth
-          </p>
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

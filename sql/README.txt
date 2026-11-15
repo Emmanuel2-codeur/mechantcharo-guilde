@@ -27,3 +27,8 @@ Les anciennes versions `migration_finales_16.sql`, `PHASE_FINALE_16_A_EXECUTER.s
 ## Attention
 
 Avant d'exécuter sur la production, faire une sauvegarde de la base Supabase.
+
+# Sécurité (à exécuter après les fichiers ci-dessus)
+- 12_security_hardening.sql   : email déjà lié, blocage des champs de stats pour les joueurs
+- 13_security_hardening_2.sql : emails admin en base, trigger admin reproductible, ff_uid caché aux visiteurs
+Note : sql/04 à 09 et sql/guild/ couvrent la vie de guilde ; sql/guild/ est la version à jour (voir docs/GUILD_SETUP.md).

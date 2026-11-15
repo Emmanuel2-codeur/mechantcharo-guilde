@@ -4,6 +4,9 @@ import SocialLinks from '@/features/guild/components/SocialLinks'
 import logo from '@/assets/logo.jpg'
 import { tPath } from '@/app/config'
 
+// Lien de ton portfolio (le nom dans le footer y mène)
+const PORTFOLIO_URL = 'https://TON-PORTFOLIO.com'
+
 
 export default function Footer() {
   return (
@@ -53,7 +56,9 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-5 lg:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <p>© 2026 Guilde MECHANTCHARO. Tous droits réservés.</p>
-          <p className="flex items-center gap-1.5"><Swords size={13} /> Développé par Emmanuel-Dev</p>
+          <p className="flex items-center gap-1.5"><Swords size={13} /> Développé par{' '}
+            <a href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-white/80 underline-offset-2 hover:text-charo-orange hover:underline transition-colors">Emmanuel-Dev</a>
+          </p>
         </div>
       </div>
     </footer>

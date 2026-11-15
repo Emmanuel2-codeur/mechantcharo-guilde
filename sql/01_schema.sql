@@ -139,7 +139,7 @@ create trigger trg_matches_updated_at
 
 -- Comptes admin automatiques ----------------------------------------------
 -- Ces 2 adresses deviennent role='admin' + status='approved' dès leur
--- première connexion Google (eadande2@gmail.com, mechantcharoguilde@gmail.com).
+-- première connexion Google (admin1@example.com, admin2@example.com).
 -- Un compte admin reste aussi un joueur normal (même ligne `profiles`) :
 -- il peut renseigner un pseudo, rejoindre un groupe et apparaître au
 -- classement comme n'importe quel autre participant.
@@ -149,8 +149,8 @@ language sql
 immutable
 as $$
   select lower(p_email) = any (array[
-    'eadande2@gmail.com',
-    'mechantcharoguilde@gmail.com'
+    'admin1@example.com',
+    'admin2@example.com'
   ]);
 $$;
 
@@ -467,7 +467,7 @@ on conflict (name) do nothing;
 
 -- ============================================================================
 -- 10. Comptes admin — voir is_configured_admin_email() plus haut dans ce
---     fichier : eadande2@gmail.com et mechantcharoguilde@gmail.com sont
+--     fichier : admin1@example.com et admin2@example.com sont
 --     promus automatiquement à leur première connexion Google, aucune
 --     action manuelle n'est nécessaire.
 -- ============================================================================

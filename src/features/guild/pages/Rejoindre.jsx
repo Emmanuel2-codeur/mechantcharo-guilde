@@ -1,5 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Clock } from 'lucide-react'
 import { supabase } from '@/shared/lib/supabaseClient'
 import { gsap, prefersReducedMotion } from '@/shared/lib/gsap'
@@ -107,7 +107,19 @@ export default function Rejoindre() {
   }
 
   const go = (to) => { dir.current = to > step ? 1 : -1; setError(''); setStep(to) }
-  const next = () => { const e = validate(step); if (e) return setError(e); go(step + 1) }
+  const next = async () => {
+    const e = validate(step)
+    if (e) return setError(e)
+    // Étape 1, visiteur non connecté : cet email a-t-il déjà un compte accepté, ou une demande en attente ?
+    if (step === 1 && !session) {
+      setBusy(true)
+      const { data: status } = await supabase.rpc('email_join_status', { p_email: email.trim() })
+      setBusy(false)
+      if (status === 'member') return setError('Cet email a déjà un compte accepté. Connecte-toi pour accéder à la guilde.')
+      if (status === 'waiting') return setError('Une demande est déjà en attente pour cet email. Patiente, un admin va l’examiner.')
+    }
+    go(step + 1)
+  }
 
   const submit = async (e) => {
     e.preventDefault()
@@ -131,14 +143,7 @@ export default function Rejoindre() {
   const rulesText = rules.data?.body || FALLBACK_RULES
 
   // États particuliers : déjà membre / candidature déjà en attente
-  if (isMember) {
-    return (
-      <div ref={ref}><Page size="sm">
-        <PageHeader eyebrow="Candidature" title="Tu es déjà dans la guilde" lead="Ton compte est approuvé : il n'y a plus de candidature à envoyer." />
-        <Button to="/profil" variant="dark">Voir mon profil</Button>
-      </Page></div>
-    )
-  }
+  if (isMember) return <Navigate to="/profil" replace />
   if (session && mine.loading) return <Spinner className="flex-1" />
   if (!done && mine.data?.[0]?.status === 'pending') {
     return (
@@ -224,12 +229,17 @@ export default function Rejoindre() {
                 )}
               </div>
 
-              {error && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+              {error && (
+                <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                  {error.includes('Connecte-toi') && <> <Link to="/connexion" className="font-bold underline">Aller à la connexion</Link></>}
+                </p>
+              )}
 
               <div className="mt-6 flex items-center justify-between gap-3">
                 {step > 1 ? <button type="button" className="btn-outline !py-3" onClick={() => go(step - 1)}><ArrowLeft size={16} /> Retour</button> : <span />}
                 {step < 3
-                  ? <button type="button" className="btn-primary" onClick={next}>Suivant <ArrowRight size={16} /></button>
+                  ? <button type="button" className="btn-primary" onClick={next} disabled={busy}>Suivant <ArrowRight size={16} /></button>
                   : <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Envoi…' : 'Envoyer ma candidature'}</button>}
               </div>
             </form>

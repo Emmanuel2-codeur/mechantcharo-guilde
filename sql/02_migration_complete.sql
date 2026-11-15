@@ -82,7 +82,7 @@ $$;
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. Liste des emails admin (eadande2@gmail.com, mechantcharoguilde@gmail.com).
+-- 1. Liste des emails admin (admin1@example.com, admin2@example.com).
 --    Ces comptes seront automatiquement role='admin' ET status='approved'
 --    dès leur première connexion. Ils restent aussi des joueurs normaux :
 --    même ligne dans `profiles`, ils peuvent renseigner un pseudo, rejoindre
@@ -94,8 +94,8 @@ language sql
 immutable
 as $$
   select lower(p_email) = any (array[
-    'eadande2@gmail.com',
-    'mechantcharoguilde@gmail.com'
+    'admin1@example.com',
+    'admin2@example.com'
   ]);
 $$;
 
@@ -1885,7 +1885,7 @@ $$;
 -- exécute cette section UNE SEULE FOIS. Un super-admin reste aussi admin.
 update public.profiles
    set role = 'super_admin'
- where email in ('eadande2@gmail.com')   -- <-- adresse(s) du/des super-admin(s)
+ where email in ('admin1@example.com')   -- <-- adresse(s) du/des super-admin(s)
    and role <> 'super_admin';
 
 comment on function public.is_super_admin is 'Vrai si l''utilisateur courant est super-admin (accès sécurité + audit complet).';

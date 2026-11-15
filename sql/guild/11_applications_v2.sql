@@ -86,6 +86,21 @@ begin
   v_email := coalesce((select u.email from auth.users u where u.id = auth.uid()), trim(p_email));
   if v_email is null or v_email !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then raise exception 'Email invalide.'; end if;
 
+  -- Email déjà lié à un compte alors que le visiteur n'est pas connecté : on refuse, il doit se connecter.
+  if auth.uid() is null and exists (select 1 from auth.users u where lower(u.email) = lower(v_email)) then
+    raise exception 'Cet email est déjà lié à un compte. Connecte-toi pour envoyer ta candidature.';
+  end if;
+  -- Déjà membre (compte approuvé ou admin)
+  if exists (
+    select 1 from public.profiles p join auth.users u on u.id = p.id
+    where lower(u.email) = lower(v_email) and (p.status = 'approved' or p.role in ('admin', 'super_admin'))
+  ) then
+    raise exception 'Tu es déjà membre de la guilde : il n''y a pas de candidature à envoyer.';
+  end if;
+  -- Même ID Free Fire déjà en attente ou déjà accepté
+  if exists (select 1 from public.guild_applications where ff_uid = trim(p_ff_uid) and status in ('pending', 'accepted')) then
+    raise exception 'Cet ID Free Fire a déjà une candidature en attente ou acceptée.';
+  end if;
   if exists (select 1 from public.guild_applications where lower(email) = lower(v_email) and status = 'pending') then
     raise exception 'Une candidature avec cet email est déjà en attente.';
   end if;

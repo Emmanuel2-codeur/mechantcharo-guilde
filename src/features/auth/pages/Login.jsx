@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
-import { Mail, ShieldCheck, ChevronDown, Info } from 'lucide-react'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { Mail, ChevronDown } from 'lucide-react'
 import logo from '@/assets/logo.jpg'
-import { signInWithEmail, signInWithGoogle, getRememberSession, setRememberSession, getLastEmail, setLastEmail } from '@/shared/lib/supabaseClient'
+import { signInWithEmail, signInWithGoogle, getEmailAccountProviders, getRememberSession, setRememberSession, getLastEmail, setLastEmail } from '@/shared/lib/supabaseClient'
 import { setNext, peekNext, clearNext } from '@/features/auth/redirect'
 import { useAuth } from '@/features/auth/AuthContext'
 
@@ -26,6 +26,7 @@ export default function Login() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [googleLoading, setGoogleLoading] = useState(false)
 
   // Page demandée avant la connexion (?next=/chemin) : on y revient une fois connecté.
@@ -52,10 +53,21 @@ export default function Login() {
   const handleEmailSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setInfo('')
     setSent(false)
     setSending(true)
     setRememberSession(remember)
     setLastEmail(email.trim())
+
+    // Cet email est-il déjà lié à un compte ? On le dit clairement au lieu de laisser croire à une création.
+    const providers = await getEmailAccountProviders(email)
+    if (providers.length > 0) {
+      const googleOnly = providers.includes('google') && !providers.includes('email')
+      setInfo(googleOnly
+        ? 'Cet email est déjà lié à un compte Google. Utilise « Continuer avec Google » pour te connecter.'
+        : 'Cet email est déjà lié à un compte. Le lien envoyé te reconnectera à ce compte.')
+      if (googleOnly) { setSending(false); return }
+    }
 
     const { error: authError } = await signInWithEmail(email)
 
@@ -80,22 +92,13 @@ export default function Login() {
           />
 
           <div className="text-center">
-            <span className="eyebrow mb-4">Connexion joueur</span>
+            <span className="eyebrow mb-4">Espace joueur</span>
             <h1 className="font-display text-3xl mb-2 text-ink">
-              Rejoindre la bataille
+              Connexion joueur
             </h1>
-            <p className="text-muted text-sm mb-4 leading-relaxed">
-              Connecte-toi avec ton compte Google. C'est instantané, et ton
-              accès sera ensuite validé par l'administration de la guilde.
-            </p>
-          </div>
-
-          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-charo-orange/25 bg-charo-orange/5 p-3.5 text-left">
-            <Info size={15} className="text-charo-orange shrink-0 mt-0.5" />
-            <p className="text-xs text-muted leading-relaxed">
-              Le tournoi est déjà en cours. Les nouvelles demandes restent
-              possibles mais sont soumises à validation selon les places
-              encore disponibles dans les groupes.
+            <p className="text-muted text-sm mb-8 leading-relaxed">
+              Connecte-toi avec ton compte Google pour accéder à ton espace
+              joueur et personnaliser ton profil. C'est instantané.
             </p>
           </div>
 
@@ -157,15 +160,22 @@ export default function Login() {
             </div>
           )}
 
+          {info && (
+            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              {info}
+            </div>
+          )}
+
           {error && (
             <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-muted">
-            <ShieldCheck size={13} /> Authentification sécurisée via Supabase Auth
-          </p>
+          <div className="mt-8 border-t border-line pt-6 text-center">
+            <p className="text-sm text-muted mb-3">Tu n'es pas encore dans la guilde ?</p>
+            <Link to="/rejoindre" className="btn-outline w-full">Rejoindre la guilde</Link>
+          </div>
         </div>
       </section>
 

@@ -58,6 +58,16 @@ try {
 
 export { supabase }
 
+// Renvoie la liste des méthodes déjà liées à cet email, ex. ['google'] ou ['email','google'] ([] = aucun compte).
+// Nécessite la fonction SQL email_account_status (sql/12_security_hardening.sql).
+export async function getEmailAccountProviders(email) {
+  const clean = email?.trim().toLowerCase()
+  if (!clean) return []
+  const { data, error } = await supabase.rpc('email_account_status', { p_email: clean })
+  if (error || !Array.isArray(data)) return []
+  return data
+}
+
 export async function signInWithEmail(email) {
   const cleanEmail = email?.trim()
 
@@ -73,10 +83,6 @@ export async function signInWithEmail(email) {
     },
   })
 
-  if (error) {
-    alert(`Connexion impossible : ${error.message}`)
-  }
-
   return { data, error }
 }
 
@@ -88,7 +94,6 @@ export async function signInWithGoogle() {
     },
   })
 
-  if (error) alert(`Connexion impossible : ${error.message}`)
   return { error }
 }
 
