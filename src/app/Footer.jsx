@@ -5,7 +5,7 @@ import logo from '@/assets/logo.jpg'
 import { tPath } from '@/app/config'
 
 // Lien de ton portfolio (le nom dans le footer y mène)
-const PORTFOLIO_URL = 'https://TON-PORTFOLIO.com'
+const PORTFOLIO_URL = 'https://portfolio-ake.vercel.app'
 
 
 export default function Footer() {
